@@ -458,6 +458,7 @@
             alert("خطأ في إنشاء الحساب (الكود مستخدم مسبقاً): " + e.message);
         }
     }
+
     // منع القائمة المنسدلة عند الضغط بزر الفأرة الأيمن
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();
@@ -478,6 +479,15 @@
             e.preventDefault();
         }
     });
+    setInterval(function() {
+        const startTime = performance.now();
+        debugger; // يوقف تنفيذ الكود إذا كانت أدوات المطور مفتوحة
+        const endTime = performance.now();
+        if (endTime - startTime > 100) {
+            // إذا اكتشف فتح F12، يتم توجيه المستخدم أو إعادة تحميل الصفحة
+            window.location.reload();
+        }
+    }, 1000);
 </script>
 </body>
 </html>
