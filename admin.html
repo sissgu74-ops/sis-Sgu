@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المسؤول - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #1b365d;
+            --accent-blue: #0066cc;
+            --bg-light: #f4f7f9;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --green: #2e7d32;
+            --orange: #ed6c02;
+            --red: #d32f2f;
+            --gray: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        /* Login Card View */
+        .login-wrapper {
+            max-width: 420px;
+            margin: 60px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .login-wrapper h2 { margin-top: 0; color: var(--primary-blue); }
+
+        /* Header View */
+        .admin-header {
+            background: linear-gradient(135deg, #102a43 0%, #1b365d 100%);
+            color: #fff;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .admin-header h1 { margin: 0; font-size: 18px; }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .nav-tab {
+            background: #e2e8f0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+        .nav-tab.active {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        .panel-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .panel-card h3 {
+            margin-top: 0;
+            color: var(--primary-blue);
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group { text-align: right; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            box-sizing: border-box;
+            font-size: 13px;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #fff;
+        }
+        .btn-primary { background-color: var(--accent-blue); }
+        .btn-success { background-color: var(--green); }
+        .btn-danger { background-color: var(--red); }
+        .btn-warning { background-color: var(--orange); }
+        .btn-secondary { background-color: var(--gray); }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: right;
+        }
+        .data-table th { background-color: #f8fafc; color: var(--primary-blue); }
+
+        .hidden { display: none !important; }
+
+        /* حل مشكلة قص النصوص بالطباعة للـ PDF */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+            html, body {
+                width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                direction: rtl !important;
+            }
+            body * { visibility: hidden; }
+            #printable-report, #printable-report * { visibility: visible; }
+            #printable-report {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .data-table th, .data-table td {
+                padding: 6px 8px !important;
+                font-size: 11px !important;
+            }
+            .no-print { display: none !important; }
+        }
+
+        .report-header-template {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+        .report-title-box { text-align: center; }
+        .report-title-box h2 { margin: 0; font-size: 18px; color: var(--primary-blue); }
+        .report-meta { font-size: 11px; color: var(--gray); margin-top: 4px; }
+        .report-summary { margin: 12px 0; font-size: 13px; font-weight: bold; background: #f1f5f9; padding: 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-section" class="login-wrapper">
+        <i class="fa-solid fa-user-shield fa-3x" style="color: var(--accent-blue); margin-bottom: 15px;"></i>
+        <h2>تسجيل دخول الأدمن</h2>
+        <div class="form-group">
+            <label>اسم المستخدم:</label>
+            <input type="text" id="admin-username" placeholder="admin">
+        </div>
+        <div class="form-group">
+            <label>كلمة المرور:</label>
+            <input type="password" id="admin-password" placeholder="****">
+        </div>
+        <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="loginAdmin()">تسجيل الدخول</button>
+    </div>
+
+    <div id="dashboard-section" class="hidden">
+        <div class="admin-header">
+            <h1><i class="fa-solid fa-user-shield"></i> لوحة إدارة النظام - SIS Admin</h1>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-warning" onclick="changeAdminPasswordPrompt()"><i class="fa-solid fa-key"></i> تغيير كلمة المرور</button>
+                <button class="btn btn-danger" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="nav-tabs">
+                <button class="nav-tab active" id="tab-btn-users" onclick="switchSection('users')"><i class="fa-solid fa-users-gear"></i> إدارة المستخدمين والطلاب</button>
+                <button class="nav-tab" id="tab-btn-tickets" onclick="switchSection('tickets')"><i class="fa-solid fa-list-check"></i> متابعة كافة الطلبات</button>
+                <button class="nav-tab" id="tab-btn-reports" onclick="switchSection('reports')"><i class="fa-solid fa-chart-line"></i> التقارير اليومية والتصدير</button>
+            </div>
+
+            <div id="section-users">
+                <div class="panel-card">
+                    <h3><i class="fa-solid fa-user-plus"></i> إنشاء حساب مهندس SIS جديد</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>الاسم الكامل:</label>
+                            <input type="text" id="eng-name" placeholder="م. أحمد عبد المنعم">
+                        </div>
+                        <div class="form-group">
+                            <label>اسم المستخدم (اليوزر):</label>
+                            <input type="text" id="eng-username" placeholder="1111">
+                        </div>
+                        <div class="form-group">
+                            <label>كلمة المرور:</label>
+                            <input type="password" id="eng-password" placeholder="****">
+                        </div>
+                        <div class="form-group">
+                            <label>الكلية التابع لها:</label>
+                            <select id="eng-college"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>مقر المكتب:</label>
+                            <input type="text" id="eng-office" placeholder="مكتب مدير مهندسي SIS">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="createEngineer()"><i class="fa-solid fa-check"></i> إنشاء الحساب</button>
+                </div>
+
+                <div class="panel-card">
+                    <h3><i class="fa-solid fa-user-pen"></i> إدارة وتعديل حسابات الطلاب والمهندسين</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>البحث بالاسم أو الكود:</label>
+                            <input type="text" id="search-user-key" placeholder="أدخل الكود أو الاسم..." onkeyup="searchUsers()">
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>الكود</th>
+                                <th>الاسم الكامل</th>
+                                <th>الدور</th>
+                                <th>الكلية</th>
+                                <th>المكتب</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="section-tickets" class="hidden">
+                <div class="panel-card">
+                    <h3><i class="fa-solid fa-filter"></i> عرض والتحكم الكامل بالطلبات</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>فلترة حسب الكلية:</label>
+                            <select id="ticket-college-filter" onchange="loadAllTickets()">
+                                <option value="ALL">جميع الكليات</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>بحث بكود/رقم الطلب أو اسم الطالب:</label>
+                            <input type="text" id="search-ticket-key" placeholder="أدخل رقم الطلب..." onkeyup="filterTicketsTable()">
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الطلب</th>
+                                <th>اسم الطالب</th>
+                                <th>الكلية</th>
+                                <th>المشكلة</th>
+                                <th>الحالة</th>
+                                <th>المهندس</th>
+                                <th>تحكم الأدمن</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tickets-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="section-reports" class="hidden">
+                <div class="panel-card no-print">
+                    <h3><i class="fa-solid fa-file-invoice"></i> إعداد التقرير اليومي</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>المهندس المسؤول:</label>
+                            <select id="report-engineer-select"><option value="ALL">جميع المهندسين</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>الحالة:</label>
+                            <select id="report-status-select">
+                                <option value="ALL">جميع الحالات</option>
+                                <option value="pending">في الانتظار</option>
+                                <option value="serving">جاري العمل</option>
+                                <option value="skipped">متخطي</option>
+                                <option value="completed">تم الانتهاء</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>من تاريخ:</label>
+                            <input type="date" id="report-date-from">
+                        </div>
+                        <div class="form-group">
+                            <label>إلى تاريخ:</label>
+                            <input type="date" id="report-date-to">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-primary" onclick="generateReport()"><i class="fa-solid fa-magnifying-glass"></i> عرض التقرير</button>
+                        <button class="btn btn-success" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> تصدير Excel</button>
+                        <button class="btn btn-secondary" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> طباعة / حفظ PDF</button>
+                    </div>
+                </div>
+
+                <div class="panel-card" id="printable-report">
+                    <div class="report-header-template">
+                        <div>
+                            <h3 style="margin:0; border:none; padding:0;">جامعة الصالحية الجديدة</h3>
+                            <p style="margin:2px 0 0; font-size:11px; color:var(--gray);">إدارة الطوابير الأكاديمية</p>
+                        </div>
+                        <div class="report-title-box">
+                            <h2>تقرير متابعة طلبات الخدمة</h2>
+                            <div class="report-meta" id="report-period-text">الفترة الزمنية: من البداية إلى اليوم</div>
+                        </div>
+                        <div>
+                            <i class="fa-solid fa-university fa-3x" style="color:var(--primary-blue);"></i>
+                        </div>
+                    </div>
+
+                    <div class="report-summary">
+                        <span>المهندس المسؤول: <span id="report-eng-name-text">جميع المهندسين</span></span>
+                        <span style="margin-right: 25px;">عدد الطلبات الخاصة حسب الفلتر: <span id="report-count-text">0</span></span>
+                    </div>
+
+                    <p style="font-weight:bold; font-size:13px; margin-bottom:5px;">الطلبات التي جائت له:</p>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>مقدم الطلب</th>
+                                <th>الكود (رقم الطلب)</th>
+                                <th>المشكلة</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body">
+                            <tr><td colspan="4" style="text-align:center;">يرجى تحديد الفلتر والضغط على عرض التقرير</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="db.js"></script>
+<script>
+    let currentAdmin = null;
+    let collegesMap = {};
+    let engineersList = [];
+    let allTicketsList = [];
+    let reportData = [];
+
+    window.onload = function() {
+        const savedAdmin = localStorage.getItem("current_admin");
+        if (savedAdmin) {
+            currentAdmin = JSON.parse(savedAdmin);
+            initDashboard();
+        }
+    };
+
+    async function loginAdmin() {
+        const u = document.getElementById("admin-username").value.trim();
+        const p = document.getElementById("admin-password").value.trim();
+
+        if (!u || !p) {
+            alert("يرجى إدخال اسم المستخدم وكلمة المرور.");
+            return;
+        }
+
+        try {
+            const users = await supabaseRequest(`users?username=eq.${u}&password=eq.${p}&role=eq.admin&select=*`);
+            if (users && users.length > 0) {
+                currentAdmin = users[0];
+                localStorage.setItem("current_admin", JSON.stringify(currentAdmin));
+                initDashboard();
+            } else {
+                alert("بيانات الدخول غير صحيحة أو ليس لديك صلاحية أدمن.");
+            }
+        } catch(e) {
+            alert("خطأ الاتصال: " + e.message);
+        }
+    }
+
+    async function changeAdminPasswordPrompt() {
+        const newPass = prompt("أدخل كلمة المرور الجديدة للأدمن:");
+        if (newPass) {
+            try {
+                await supabaseRequest(`users?id=eq.${currentAdmin.id}`, "PATCH", { password: newPass });
+                alert("تم تحديث كلمة المرور بنجاح.");
+            } catch(e) { alert("خطأ في التحديث: " + e.message); }
+        }
+    }
+
+    async function initDashboard() {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("dashboard-section").classList.remove("hidden");
+
+        await cleanExpiredPendingTickets();
+        await loadColleges();
+        await loadEngineersList();
+        searchUsers();
+    }
+
+    async function cleanExpiredPendingTickets() {
+        try {
+            const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+            await supabaseRequest(`tickets?status=eq.pending&created_at=lt.${twelveHoursAgo}`, "DELETE");
+        } catch(e) { console.error(e); }
+    }
+
+    async function loadColleges() {
+        try {
+            const colleges = await supabaseRequest("colleges?select=*");
+            const selectEng = document.getElementById("eng-college");
+            const selectFilter = document.getElementById("ticket-college-filter");
+
+            selectEng.innerHTML = "";
+            selectFilter.innerHTML = `<option value="ALL">جميع الكليات</option>`;
+
+            colleges.forEach(c => {
+                collegesMap[c.id] = c.name;
+                selectEng.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                selectFilter.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+        } catch(e) { console.error(e); }
+    }
+
+    async function loadEngineersList() {
+        try {
+            engineersList = await supabaseRequest("users?role=eq.sis_employee&select=*");
+            const selectRep = document.getElementById("report-engineer-select");
+            selectRep.innerHTML = `<option value="ALL">جميع المهندسين</option>`;
+            engineersList.forEach(e => {
+                selectRep.innerHTML += `<option value="${e.id}">${e.full_name}</option>`;
+            });
+        } catch(e) { console.error(e); }
+    }
+
+    function switchSection(sec) {
+        document.getElementById("section-users").classList.toggle("hidden", sec !== 'users');
+        document.getElementById("section-tickets").classList.toggle("hidden", sec !== 'tickets');
+        document.getElementById("section-reports").classList.toggle("hidden", sec !== 'reports');
+
+        document.getElementById("tab-btn-users").classList.toggle("active", sec === 'users');
+        document.getElementById("tab-btn-tickets").classList.toggle("active", sec === 'tickets');
+        document.getElementById("tab-btn-reports").classList.toggle("active", sec === 'reports');
+
+        if(sec === 'tickets') loadAllTickets();
+    }
+
+    // إدارة الحسابات
+    async function createEngineer() {
+        const name = document.getElementById("eng-name").value.trim();
+        const username = document.getElementById("eng-username").value.trim();
+        const password = document.getElementById("eng-password").value.trim();
+        const college_id = document.getElementById("eng-college").value;
+        const office_name = document.getElementById("eng-office").value.trim();
+
+        if (!name || !username || !password) {
+            alert("يرجى ملء البيانات كاملة.");
+            return;
+        }
+
+        try {
+            await supabaseRequest("users", "POST", {
+                full_name: name, username: username, password: password,
+                role: 'sis_employee', college_id: college_id, office_name: office_name
+            });
+            alert("تم إنشاء حساب المهندس بنجاح.");
+            loadEngineersList();
+            searchUsers();
+        } catch(e) { alert("خطأ: " + e.message); }
+    }
+
+    async function searchUsers() {
+        const keyword = document.getElementById("search-user-key").value.trim();
+        try {
+            let query = `users?select=*`;
+            if (keyword) query += `&or=(username.ilike.*${keyword}*,full_name.ilike.*${keyword}*)`;
+            const users = await supabaseRequest(query);
+            const tbody = document.getElementById("users-table-body");
+            tbody.innerHTML = "";
+
+            users.forEach(u => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${u.username}</td>
+                        <td>${u.full_name}</td>
+                        <td>${u.role}</td>
+                        <td>${collegesMap[u.college_id] || '---'}</td>
+                        <td>${u.office_name || '---'}</td>
+                        <td>
+                            <button class="btn btn-primary" style="padding:4px 8px;" onclick="editUserPrompt(${u.id}, '${u.full_name}', '${u.password}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-danger" style="padding:4px 8px;" onclick="deleteUser(${u.id})"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        } catch(e) { console.error(e); }
+    }
+
+    async function editUserPrompt(id, oldName, oldPass) {
+        const newName = prompt("تعديل الاسم الكامل:", oldName);
+        const newPass = prompt("تعديل كلمة المرور:", oldPass);
+        if (newName && newPass) {
+            try {
+                await supabaseRequest(`users?id=eq.${id}`, "PATCH", { full_name: newName, password: newPass });
+                searchUsers();
+            } catch(e) { alert("خطأ: " + e.message); }
+        }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm("تأكيد الحذف؟")) return;
+        try {
+            await supabaseRequest(`users?id=eq.${id}`, "DELETE");
+            searchUsers();
+        } catch(e) { alert("خطأ: " + e.message); }
+    }
+
+    // متابعة والتحكم في الطلبات للأدمن
+    async function loadAllTickets() {
+        const collegeFilter = document.getElementById("ticket-college-filter").value;
+        try {
+            let url = `tickets?select=*,users!student_id(full_name)&order=created_at.desc`;
+            if (collegeFilter !== 'ALL') {
+                url = `tickets?college_id=eq.${collegeFilter}&select=*,users!student_id(full_name)&order=created_at.desc`;
+            }
+            allTicketsList = await supabaseRequest(url) || [];
+            filterTicketsTable();
+        } catch(e) { console.error(e); }
+    }
+
+    function filterTicketsTable() {
+        const key = document.getElementById("search-ticket-key").value.trim().toLowerCase();
+        const tbody = document.getElementById("tickets-table-body");
+        tbody.innerHTML = "";
+
+        let filtered = allTicketsList.filter(t => {
+            const studentName = t.users ? t.users.full_name.toLowerCase() : '';
+            return `P-${t.ticket_number}`.toLowerCase().includes(key) ||
+                   t.ticket_number.toString().includes(key) ||
+                   studentName.includes(key);
+        });
+
+        filtered.forEach(t => {
+            const studentName = t.users ? t.users.full_name : 'غير محدد';
+            const eng = engineersList.find(e => e.id === t.served_by_employee_id);
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>P-${t.ticket_number}</b></td>
+                    <td>${studentName}</td>
+                    <td>${collegesMap[t.college_id] || '---'}</td>
+                    <td>${t.issue_type || 'غير محدد'}</td>
+                    <td>${translateStatus(t.status)}</td>
+                    <td>${eng ? eng.full_name : '---'}</td>
+                    <td>
+                        <button class="btn btn-success" style="padding:4px 6px;" title="فتح/بدء العمل" onclick="updateTicketStatusAdmin(${t.id}, 'serving')"><i class="fa-solid fa-door-open"></i></button>
+                        <button class="btn btn-primary" style="padding:4px 6px;" title="إنهاء الخدمة" onclick="updateTicketStatusAdmin(${t.id}, 'completed')"><i class="fa-solid fa-check"></i></button>
+                        <button class="btn btn-warning" style="padding:4px 6px;" title="تخطي" onclick="updateTicketStatusAdmin(${t.id}, 'skipped')"><i class="fa-solid fa-forward"></i></button>
+                        <button class="btn btn-danger" style="padding:4px 6px;" title="حذف" onclick="deleteTicketAdmin(${t.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    async function updateTicketStatusAdmin(ticketId, newStatus) {
+        try {
+            await supabaseRequest(`tickets?id=eq.${ticketId}`, "PATCH", { status: newStatus });
+            loadAllTickets();
+        } catch(e) { alert("خطأ: " + e.message); }
+    }
+
+    async function deleteTicketAdmin(ticketId) {
+        if (!confirm("هل أنت تأكد من حذف الطلب؟")) return;
+        try {
+            await supabaseRequest(`tickets?id=eq.${ticketId}`, "DELETE");
+            loadAllTickets();
+        } catch(e) { alert("خطأ: " + e.message); }
+    }
+
+    // التقارير والتصدير
+    async function generateReport() {
+        const engId = document.getElementById("report-engineer-select").value;
+        const status = document.getElementById("report-status-select").value;
+        const dateFrom = document.getElementById("report-date-from").value;
+        const dateTo = document.getElementById("report-date-to").value;
+
+        try {
+            let query = `tickets?select=*,student:users!student_id(full_name)&order=created_at.desc`;
+            
+            if (engId !== 'ALL') query += `&served_by_employee_id=eq.${engId}`;
+            if (status !== 'ALL') query += `&status=eq.${status}`;
+            if (dateFrom) query += `&created_at=gte.${dateFrom}T00:00:00`;
+            if (dateTo) query += `&created_at=lte.${dateTo}T23:59:59`;
+
+            reportData = await supabaseRequest(query);
+
+            document.getElementById("report-period-text").textContent = `الفترة الزمنية: من ${dateFrom || 'البداية'} إلى ${dateTo || 'اليوم'}`;
+            const engObj = engineersList.find(e => e.id == engId);
+            document.getElementById("report-eng-name-text").textContent = engObj ? engObj.full_name : 'جميع المهندسين';
+            document.getElementById("report-count-text").textContent = reportData.length;
+
+            const tbody = document.getElementById("report-table-body");
+            tbody.innerHTML = "";
+
+            if (reportData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">لا توجد بيانات مطابقة.</td></tr>`;
+                return;
+            }
+
+            reportData.forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${r.student ? r.student.full_name : 'طالب'}</td>
+                        <td>P-${r.ticket_number}</td>
+                        <td>${r.issue_type || 'استفسار'}</td>
+                        <td>${translateStatus(r.status)}</td>
+                    </tr>`;
+            });
+        } catch(e) { alert("خطأ: " + e.message); }
+    }
+
+    function translateStatus(s) {
+        if (s === 'pending') return 'في الانتظار';
+        if (s === 'serving') return 'جاري العمل';
+        if (s === 'skipped') return 'متخطي';
+        if (s === 'completed') return 'تم الانتهاء';
+        return s;
+    }
+
+    function exportExcel() {
+        if (reportData.length === 0) { alert("عرض التقرير أولاً!"); return; }
+        const excelRows = reportData.map(r => ({
+            "مقدم الطلب": r.student ? r.student.full_name : 'طالب',
+            "الكود (رقم الطلب)": `P-${r.ticket_number}`,
+            "المشكلة": r.issue_type || 'غير محدد',
+            "الحالة": translateStatus(r.status)
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(excelRows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "تقرير الطلبات");
+        XLSX.writeFile(workbook, `Daily_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function exportPDF() {
+        if (reportData.length === 0) { alert("عرض التقرير أولاً!"); return; }
+        window.print();
+    }
+
+    function logout() {
+        localStorage.removeItem("current_admin");
+        currentAdmin = null;
+        document.getElementById("login-section").classList.remove("hidden");
+        document.getElementById("dashboard-section").classList.add("hidden");
+    }
+</script>
+</body>
+</html>

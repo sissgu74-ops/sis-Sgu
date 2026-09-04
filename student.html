@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شاشة الطالب - نظام الطوابير</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1b365d;
+            --accent-blue: #0066cc;
+            --light-bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --orange-badge: #ff9800;
+            --green-badge: #2e7d32;
+            --text-dark: #2c3e50;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-wrapper {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Header Banner */
+        .top-banner {
+            background: linear-gradient(135deg, #102a43 0%, #1b365d 100%);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .top-banner .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 5px;
+        }
+        .top-banner .logo-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            background-color: #fff;
+        }
+        .top-banner h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .top-banner p {
+            margin: 3px 0 0;
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .logout-link {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            color: #fff;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Content Container */
+        .content {
+            padding: 20px;
+            flex: 1;
+        }
+
+        /* College Header Section */
+        .college-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .college-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--primary-blue);
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .college-title i {
+            color: var(--accent-blue);
+            font-size: 22px;
+        }
+        .welcome-text {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        .sub-welcome {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Section Title Divider */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 15px;
+            color: var(--primary-blue);
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .section-divider::before, .section-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #cbd5e1;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .service-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .service-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .service-card i {
+            font-size: 22px;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+        }
+        .service-card span {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        /* Main Ticket Container */
+        .ticket-card {
+            background: #f0f7ff;
+            border: 1px solid #cce3de;
+            border-radius: 14px;
+            padding: 20px 15px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .ticket-number-display {
+            font-size: 38px;
+            font-weight: 800;
+            color: #0b4f6c;
+            margin: 10px 0 5px;
+            letter-spacing: 1px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 18px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .status-pill.status-pending { background-color: var(--orange-badge); }
+        .status-pill.status-serving { background-color: var(--green-badge); }
+        .status-pill.status-skipped { background-color: #d32f2f; }
+
+        /* Stats Row */
+        .stats-box {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            justify-content: center;
+        }
+        .stat-item i {
+            font-size: 22px;
+            color: #0066cc;
+        }
+        .stat-info {
+            text-align: right;
+        }
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            display: block;
+        }
+        .stat-value {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+        .stat-divider {
+            width: 1px;
+            height: 25px;
+            background: #e2e8f0;
+        }
+
+        /* Office & Engineer Info Box */
+        .office-box {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .office-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+        .office-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .office-val {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        /* Important Notes Card */
+        .notes-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .notes-icon-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #0066cc;
+        }
+        .notes-icon-side i {
+            font-size: 32px;
+        }
+        .notes-content {
+            flex: 1;
+        }
+        .notes-title {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+        .notes-list {
+            margin: 0;
+            padding-right: 15px;
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Modal Popup Alert */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 25px 20px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            border: 2px solid #22c55e;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background: #dcfce7;
+            color: #16a34a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 15px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #15803d;
+            margin-bottom: 10px;
+        }
+
+        .modal-body {
+            font-size: 14px;
+            color: #334155;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-highlight-box {
+            background: #f0fdf4;
+            border: 1px dashed #86efac;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        .modal-highlight-box p {
+            margin: 4px 0;
+            font-size: 13px;
+        }
+
+        .modal-btn {
+            background-color: #16a34a;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .modal-btn:hover {
+            background-color: #15803d;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        /* Footer */
+        .bottom-footer {
+        background: var(--primary-blue, #1b365d);
+        color: #fff;
+        text-align: center;
+        padding: 15px 10px;
+        font-size: 12px;
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .footer-credits {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-weight: 500;
+        direction: ltr; /* لضمان تنسيق النص الإنجليزي بشكل صحيح */
+    }
+
+    .footer-credits .heart-icon {
+        color: #e74c3c;
+        animation: pulse-heart 1.5s infinite;
+    }
+
+    .social-links {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .social-icon {
+        color: #ffffff;
+        font-size: 18px;
+        transition: transform 0.2s ease, color 0.2s ease;
+        text-decoration: none;
+    }
+
+    .social-icon:hover {
+        transform: translateY(-3px);
+    }
+
+    .social-icon.whatsapp:hover { color: #25D366; }
+    .social-icon.facebook:hover { color: #1877F2; }
+    .social-icon.instagram:hover { color: #E4405F; }
+
+    @keyframes pulse-heart {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="top-banner">
+        <button class="logout-link" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        <div class="logo-area">
+            <img src="logo.png" alt="جامعة الصالحية الجديدة" class="logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/50';">
+            <div>
+                <h1>نظام تنظيم خدمات الطلاب</h1>
+                <p>جامعة الصالحية الجديدة</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="college-header">
+            <div class="college-title">
+                <i class="fa-solid fa-capsules"></i>
+                <span id="student-college-name">جاري التحميل...</span>
+            </div>
+            <p class="welcome-text" id="student-welcome-title">مرحباً بك، طالب</p>
+            <p class="sub-welcome">نحن هنا لخدمتك</p>
+        </div>
+
+        <div id="no-ticket-view">
+            <div class="section-divider">
+                <span>اختر الخدمة التي تحتاجها</span>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card" onclick="submitTicket('تسجيل مقررات')">
+                    <i class="fa-regular fa-file-lines"></i>
+                    <span>تسجيل مقررات</span>
+                </div>
+                <div class="service-card" onclick="submitTicket('مشكلة في التسجيل')">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>مشكلة في التسجيل</span>
+                </div>
+                <div class="service-card" onclick="submitTicket('حذف / إضافة مقرر')">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    <span>حذف / إضافة مقرر</span>
+                </div>
+                <div class="service-card" onclick="submitTicket('استفسار أكاديمي')">
+                    <i class="fa-regular fa-comments"></i>
+                    <span>استفسار أكاديمي</span>
+                </div>
+                <div class="service-card" onclick="submitTicket('مشكلة في الـ SIS')">
+                    <i class="fa-solid fa-laptop-code"></i>
+                    <span>مشكلة في الـ SIS</span>
+                </div>
+                <div class="service-card" onclick="submitTicket('مشكلة في الساعات')">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>مشكلة في الساعات</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="has-ticket-view" class="hidden">
+            <div class="section-divider">
+                <span>رقم دورك</span>
+            </div>
+
+            <div class="ticket-card">
+                <div class="ticket-number-display" id="my-ticket-number">P-000</div>
+                
+                <div>
+                    <span id="my-ticket-status" class="status-pill status-pending">
+                        <i class="fa-regular fa-clock"></i> <span id="status-text">الحالة: في الانتظار</span>
+                    </span>
+                </div>
+
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <div class="stat-info">
+                            <span class="stat-label">يتم الآن خدمة</span>
+                            <span class="stat-value" id="current-serving-ticket">---</span>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <i class="fa-solid fa-users"></i>
+                        <div class="stat-info">
+                            <span class="stat-label">المتبقي أمامك</span>
+                            <span class="stat-value" id="students-ahead-count">0 طالب</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="office-box">
+                    <div class="office-row">
+                        <span class="office-label"><i class="fa-solid fa-user-tie"></i> المهندس المسؤول:</span>
+                        <span class="office-val" id="emp-name-tag">جاري التحديد...</span>
+                    </div>
+                    <div class="office-row">
+                        <span class="office-label"><i class="fa-solid fa-building-columns"></i> المكتب / المقر:</span>
+                        <span class="office-val" id="emp-office-name">المكتب الرئيسي</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-card">
+            <div class="notes-icon-side">
+                <i class="fa-solid fa-chair"></i>
+            </div>
+            <div class="notes-content">
+                <div class="notes-title">
+                    ملاحظات هامة
+                    <i class="fa-solid fa-circle-info" style="color: #0066cc;"></i>
+                </div>
+                <ul class="notes-list">
+                    <li>برجاء الانتظار حتى يتم استدعاء رقمك.</li>
+                    <li>سيتم إرسال إشعار عند قرب دورك.</li>
+                    <li>شكراً لتعاونك ونتمنى لك التوفيق.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="serving-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-icon-wrapper">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <div class="modal-title">حان دورك الآن!</div>
+            <div class="modal-body">
+                يرجى التوجه فوراً إلى المهندس المختص لإنهاء خدمتك.
+                <div class="modal-highlight-box">
+                    <p><strong><i class="fa-solid fa-user-tie"></i> المهندس:</strong> <span id="modal-emp-name">---</span></p>
+                    <p><strong><i class="fa-solid fa-door-open"></i> المكتب:</strong> <span id="modal-office-name">---</span></p>
+                </div>
+            </div>
+            <button class="modal-btn" onclick="dismissServingModal()">فهمت، سأتوجه الآن</button>
+        </div>
+    </div>
+
+    <div class="bottom-footer">
+    <div class="footer-credits">
+        <span>Developed with</span>
+        <i class="fa-solid fa-heart heart-icon"></i>
+        <span>by <strong>Eng. Mohamed Elsayed</strong></span>
+    </div>
+
+    <div class="social-links">
+        <a href="https://wa.me/01004335462" target="_blank" class="social-icon whatsapp" title="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        
+        <a href="https://www.facebook.com/share/18NjzVPKGe/" target="_blank" class="social-icon facebook" title="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+        </a>
+
+        <a href="https://www.instagram.com/mohamed_alsayid995?igsi=MW85ZnI1ZzdocTJiMg==" target="_blank" class="social-icon instagram" title="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+        </a>
+    </div>
+</div>
+</div>
+
+<script src="db.js"></script>
+<script>
+    let currentUser = null;
+    let collegesList = [];
+    let statusInterval = null;
+    let modalShownForTicket = null; // لتتبع تذكرة الطالب ومنع تكرار فتح الإشعار بعد إغلاقه يدويًا
+
+    window.onload = async function() {
+        const savedUser = localStorage.getItem("current_student");
+        if (!savedUser) {
+            window.location.href = "login.html";
+            return;
+        }
+        currentUser = JSON.parse(savedUser);
+        
+        try {
+            collegesList = await supabaseRequest("colleges?select=*");
+            const college = collegesList.find(c => c.id === currentUser.college_id);
+            document.getElementById("student-college-name").textContent = college ? college.name : "غير محدد";
+            document.getElementById("student-welcome-title").textContent = `مرحباً بك، ${currentUser.full_name}`;
+            
+            // التحديث الأولي ومراقبة القاعدة دورياً (كل 3 ثواني)
+            checkStudentTicketStatus();
+            statusInterval = setInterval(checkStudentTicketStatus, 3000);
+        } catch (e) {
+            console.error("خطأ في التحميل:", e);
+        }
+    };
+
+    async function submitTicket(selectedIssue) {
+        try {
+            const collegeData = await supabaseRequest(`colleges?id=eq.${currentUser.college_id}&select=current_ticket_counter`);
+            let nextTicketNumber = collegeData[0].current_ticket_counter + 1;
+
+            await supabaseRequest(`colleges?id=eq.${currentUser.college_id}`, "PATCH", { current_ticket_counter: nextTicketNumber });
+
+            const newTicket = {
+                ticket_number: nextTicketNumber,
+                student_id: currentUser.id,
+                college_id: currentUser.college_id,
+                issue_type: selectedIssue,
+                status: "pending"
+            };
+            await supabaseRequest("tickets", "POST", newTicket);
+            checkStudentTicketStatus();
+        } catch(e) {
+            alert("حدث خطأ أثناء طلب الدور: " + e.message);
+        }
+    }
+
+    async function checkStudentTicketStatus() {
+        try {
+            const tickets = await supabaseRequest(`tickets?college_id=eq.${currentUser.college_id}&status=neq.completed&select=*&order=ticket_number.asc`);
+            const myActiveTicket = tickets.find(t => t.student_id === currentUser.id);
+
+            if(myActiveTicket) {
+                document.getElementById("no-ticket-view").classList.add("hidden");
+                document.getElementById("has-ticket-view").classList.remove("hidden");
+
+                // عرض رقم التذكرة بصيغة P-101
+                document.getElementById("my-ticket-number").textContent = `P-${myActiveTicket.ticket_number}`;
+                
+                const statusBadge = document.getElementById("my-ticket-status");
+                const statusText = document.getElementById("status-text");
+                
+                statusBadge.className = `status-pill status-${myActiveTicket.status}`;
+                statusText.textContent = getStatusText(myActiveTicket.status);
+
+                // حساب الترتيب والخدمة الحالية
+                const servingTicket = tickets.find(t => t.status === 'serving');
+                document.getElementById("current-serving-ticket").textContent = servingTicket ? `P-${servingTicket.ticket_number}` : 'لا يوجد';
+
+                if(myActiveTicket.status === 'pending') {
+                    const pendingList = tickets.filter(t => t.status === 'pending');
+                    const myIndex = pendingList.findIndex(t => t.id === myActiveTicket.id);
+                    document.getElementById("students-ahead-count").textContent = `${myIndex} طالب`;
+                } else if(myActiveTicket.status === 'serving') {
+                    document.getElementById("students-ahead-count").textContent = "دورك الآن";
+                } else {
+                    document.getElementById("students-ahead-count").textContent = "---";
+                }
+
+                // جلب بيانات المهندس المسؤول بنفس الكلية والمكتب
+                let empId = myActiveTicket.served_by_employee_id;
+                let employeeQuery = empId ? `users?id=eq.${empId}&select=*` : `users?college_id=eq.${currentUser.college_id}&role=eq.sis_employee&select=*`;
+                const employees = await supabaseRequest(employeeQuery);
+                
+                let empName = "مهندس النظام";
+                let officeName = "المكتب الرئيسي";
+
+                if(employees && employees.length > 0) {
+                    const emp = employees[0];
+                    empName = emp.full_name;
+                    officeName = emp.office_name || "SIS - المكتب الرئيسي";
+                }
+
+                document.getElementById("emp-name-tag").textContent = empName;
+                document.getElementById("emp-office-name").textContent = officeName;
+
+                // إظهار النافذة المنبثقة عند تحول الحالة إلى serving ولم تُعرض بعد لهذه التذكرة
+                if (myActiveTicket.status === 'serving' && modalShownForTicket !== myActiveTicket.id) {
+                    document.getElementById("modal-emp-name").textContent = empName;
+                    document.getElementById("modal-office-name").textContent = officeName;
+                    document.getElementById("serving-modal").classList.remove("hidden");
+                }
+
+            } else {
+                document.getElementById("no-ticket-view").classList.remove("hidden");
+                document.getElementById("has-ticket-view").classList.add("hidden");
+                document.getElementById("serving-modal").classList.add("hidden");
+                modalShownForTicket = null;
+            }
+        } catch(e) {
+            console.error("خطأ في تحديث الحالة:", e);
+        }
+    }
+
+    function dismissServingModal() {
+        const myActiveTicketId = modalShownForTicket;
+        document.getElementById("serving-modal").classList.add("hidden");
+        // تعيين معرف التذكرة كمعروض حتى لا تتكرر منبثقة الإشعار بنفس الجلسة
+        modalShownForTicket = myActiveTicketId || true;
+    }
+
+    function getStatusText(status) {
+        switch(status) {
+            case 'pending': return 'الحالة: في الانتظار';
+            case 'serving': return 'الحالة: جاري الخدمة الآن';
+            case 'skipped': return 'الحالة: تم التخطي';
+            default: return status;
+        }
+    }
+
+    function logout() {
+        clearInterval(statusInterval);
+        localStorage.removeItem("current_student");
+        window.location.href = "login.html";
+    }
+</script>
+</body>
+</html>

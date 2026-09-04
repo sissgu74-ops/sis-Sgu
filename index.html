@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - نظام خدمات الطلاب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #0f172a;
+            --accent-blue: #2563eb;
+            --accent-glow: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glowing Background Elements */
+        .bg-glow-1 {
+            position: absolute;
+            top: -10%;
+            right: -10%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(37,99,235,0.3) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        .bg-glow-2 {
+            position: absolute;
+            bottom: -10%;
+            left: -10%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        /* Main Container */
+        .main-wrapper {
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        /* Brand Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .brand-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: #fff;
+            font-size: 32px;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+            transform: rotate(-3deg);
+        }
+
+        .brand-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .brand-header p {
+            margin: 5px 0 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            right: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 42px 12px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-blue);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.3);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .switch-link span {
+            color: var(--accent-blue);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .switch-link span:hover {
+            text-decoration: underline;
+        }
+
+        /* Futuristic Footer Structure */
+        .bottom-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer-credits {
+            font-family: 'Poppins', 'Cairo', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            direction: ltr;
+            letter-spacing: 0.3px;
+        }
+
+        .footer-credits strong {
+            color: #f8fafc;
+        }
+
+        .heart-icon {
+            color: #ef4444;
+            animation: pulse-heart 1.5s infinite;
+        }
+
+        /* Quick Navigation Action Icons */
+        .portal-access-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .portal-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.25s ease;
+        }
+
+        .portal-btn i {
+            font-size: 14px;
+        }
+
+        .portal-btn.sis-link:hover {
+            background: rgba(14, 165, 233, 0.2);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .portal-btn.admin-link:hover {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #c084fc;
+            color: #c084fc;
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
+        }
+
+        @keyframes pulse-heart {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow-1"></div>
+<div class="bg-glow-2"></div>
+
+<div class="main-wrapper">
+    <div class="glass-card">
+        <div class="brand-header">
+            <div class="brand-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2>نظام خدمات الطلاب</h2>
+            <p>جامعة الصالحية الجديدة</p>
+        </div>
+
+        <div id="login-section">
+            <div class="form-group">
+                <label>كود الطالب (اسم المستخدم)</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-id-card"></i>
+                    <input type="text" id="login-username" placeholder="أدخل كود الطالب">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="أدخل كلمة المرور">
+                </div>
+            </div>
+            <button class="btn-submit" onclick="handleLogin()">
+                <span>دخول النظام</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="switch-link" onclick="toggleAuthMode()">ليس لديك حساب؟ <span>إنشاء حساب جديد</span></div>
+        </div>
+
+        <div id="register-section" class="hidden">
+            <div class="form-group">
+                <label>كود الطالب</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-id-card"></i>
+                    <input type="text" id="reg-code" placeholder="أدخل الكود الجامعي">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="reg-name" placeholder="أدخل اسمك ثلاثي">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>الكلية</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <select id="reg-college"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="reg-password" value="123" placeholder="كلمة المرور">
+                </div>
+            </div>
+            <button class="btn-submit" onclick="handleRegister()">
+                <span>تسجيل الحساب</span>
+                <i class="fa-solid fa-user-plus"></i>
+            </button>
+            <div class="switch-link" onclick="toggleAuthMode()">لديك حساب بالفعل؟ <span>تسجيل الدخول</span></div>
+        </div>
+    </div>
+
+    <div class="bottom-footer">
+        <div class="footer-credits">
+            <span>Developed with</span>
+            <i class="fa-solid fa-heart heart-icon"></i>
+            <span>by <strong>Eng. Mohamed Elsayed</strong></span>
+        </div>
+
+        <div class="portal-access-bar">
+            <a href="engineer.html" class="portal-btn sis-link" title="بوابة مهندس SIS">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>مهندس SIS</span>
+            </a>
+            <a href="admin.html" class="portal-btn admin-link" title="بوابة مدير النظام">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>لوحة الأدمن</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="db.js"></script>
+<script>
+    window.onload = async function() {
+        await loadCollegesDropdown();
+    };
+
+    async function loadCollegesDropdown() {
+        try {
+            const collegesList = await supabaseRequest("colleges?select=*");
+            const select = document.getElementById("reg-college");
+            select.innerHTML = "";
+            collegesList.forEach(college => {
+                let opt = document.createElement("option");
+                opt.value = college.id;
+                opt.textContent = college.name;
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            console.error("تعذر تحميل الكليات:", e);
+        }
+    }
+
+    function toggleAuthMode() {
+        document.getElementById("login-section").classList.toggle("hidden");
+        document.getElementById("register-section").classList.toggle("hidden");
+    }
+
+    async function handleLogin() {
+        const username = document.getElementById("login-username").value.trim();
+        const password = document.getElementById("login-password").value.trim();
+        if(!username || !password) {
+            alert("الرجاء إدخال البيانات المطلوبة");
+            return;
+        }
+
+        try {
+            const users = await supabaseRequest(`users?username=eq.${username}&password=eq.${password}&select=*`);
+            if(users.length === 0) {
+                alert("بيانات الدخول غير صحيحة");
+                return;
+            }
+            const user = users[0];
+            if(user.role !== 'student') {
+                alert("هذه الصفحة مخصصة للطلاب فقط!");
+                return;
+            }
+            localStorage.setItem("current_student", JSON.stringify(user));
+            window.location.href = "student.html"; // الانتقال لشاشة الطالب
+        } catch(e) {
+            alert("خطأ أثناء تسجيل الدخول: " + e.message);
+        }
+    }
+
+    async function handleRegister() {
+        const code = document.getElementById("reg-code").value.trim();
+        const name = document.getElementById("reg-name").value.trim();
+        const collegeId = document.getElementById("reg-college").value;
+        const password = document.getElementById("reg-password").value.trim();
+
+        if(!code || !name) {
+            alert("الرجاء إكمال كافة البيانات");
+            return;
+        }
+
+        try {
+            const newUser = {
+                username: code,
+                password: password,
+                role: "student",
+                full_name: name,
+                college_id: parseInt(collegeId)
+            };
+            const res = await supabaseRequest("users", "POST", newUser);
+            localStorage.setItem("current_student", JSON.stringify(res[0]));
+            alert("تم إنشاء الحساب بنجاح!");
+            window.location.href = "student.html";
+        } catch(e) {
+            alert("خطأ في إنشاء الحساب (الكود مستخدم مسبقاً): " + e.message);
+        }
+    }
+</script>
+</body>
+</html>

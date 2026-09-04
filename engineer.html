@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - مهندس SIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1b365d;
+            --accent-blue: #0066cc;
+            --bg-light: #f4f7f9;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --green: #2e7d32;
+            --orange: #ed6c02;
+            --red: #d32f2f;
+            --gray: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .login-wrapper {
+            max-width: 420px;
+            margin: 60px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .login-wrapper h2 { margin-top: 0; color: var(--primary-blue); }
+        .form-group { margin-bottom: 15px; text-align: right; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: bold; }
+        .form-group input {
+            width: 100%; padding: 10px; border: 1px solid var(--border-color);
+            border-radius: 6px; box-sizing: border-box; outline: none;
+        }
+        .login-btn {
+            width: 100%; padding: 10px; background-color: var(--accent-blue);
+            color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #102a43 0%, #1b365d 100%);
+            color: #fff; padding: 15px 20px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .engineer-info { display: flex; align-items: center; gap: 12px; }
+        .engineer-info i { font-size: 32px; color: #38bdf8; }
+        .engineer-details h2 { margin: 0; font-size: 16px; }
+        .engineer-details p { margin: 2px 0 0; font-size: 12px; opacity: 0.85; }
+        .logout-btn {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+            color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer;
+        }
+
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+
+        .controls-bar {
+            background: var(--card-bg); padding: 15px; border-radius: 10px;
+            border: 1px solid var(--border-color); display: flex;
+            justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px;
+        }
+        .search-box {
+            display: flex; align-items: center; background: #f1f5f9;
+            border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px; flex: 1; max-width: 300px;
+        }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; }
+        .tabs { display: flex; gap: 8px; }
+        .tab-btn {
+            background: #e2e8f0; border: none; padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-weight: bold; color: var(--gray);
+        }
+        .tab-btn.active { background: var(--accent-blue); color: #fff; }
+
+        .queue-list { display: grid; gap: 15px; }
+        .ticket-item {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 15px; display: flex;
+            justify-content: space-between; align-items: center; border-right: 5px solid var(--gray);
+        }
+        .ticket-item.status-serving { border-right-color: var(--green); background: #f0fdf4; }
+        .ticket-item.status-pending { border-right-color: var(--orange); }
+        .ticket-item.status-skipped { border-right-color: var(--red); opacity: 0.85; }
+
+        .ticket-main { display: flex; align-items: center; gap: 15px; }
+        .ticket-badge {
+            background: var(--primary-blue); color: #fff; padding: 10px 15px;
+            border-radius: 8px; font-size: 20px; font-weight: bold;
+        }
+        .ticket-info h4 { margin: 0 0 4px; font-size: 15px; color: var(--primary-blue); }
+        .ticket-info p { margin: 2px 0; font-size: 12px; color: var(--gray); }
+        .ticket-actions { display: flex; gap: 8px; }
+
+        .btn {
+            border: none; padding: 8px 12px; border-radius: 6px;
+            font-size: 12px; font-weight: bold; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 5px; color: #fff;
+        }
+        .btn-start { background-color: var(--green); }
+        .btn-complete { background-color: var(--primary-blue); }
+        .btn-skip { background-color: var(--orange); }
+        .btn-delete { background-color: var(--red); }
+
+        .empty-state { text-align: center; padding: 40px; color: var(--gray); background: var(--card-bg); border-radius: 10px; }
+        .hidden { display: none !important; }
+
+        .bottom-footer {
+    background: var(--primary-blue, #1b365d);
+    color: #fff;
+    text-align: center;
+    padding: 12px 20px; /* تم تعديل التباعد الجانبي ليكون مناسباً لجميع الشاشات والهواتف */
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* جعل الفوتر ثابتاً في أسفل الشاشة دائماً */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 999; /* لضمان ظهوره فوق باقي العناصر */
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15); /* إضافة ظل خفيف لإعطاء مظهر مرتفع وعصري */
+}
+
+/* إضافة هامش سفلي للمحتوى الرئيسي للصفحة لتجنب اختفاء آخر جزء تحته */
+body {
+    padding-bottom: 90px !important;
+}
+
+.footer-credits {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 500;
+    direction: ltr; /* لضمان تنسيق النص الإنجليزي بشكل صحيح */
+}
+
+.footer-credits .heart-icon {
+    color: #e74c3c;
+    animation: pulse-heart 1.5s infinite;
+}
+
+.social-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.social-icon {
+    color: #ffffff;
+    font-size: 18px;
+    transition: transform 0.2s ease, color 0.2s ease;
+    text-decoration: none;
+}
+
+.social-icon:hover {
+    transform: translateY(-3px);
+}
+
+.social-icon.whatsapp:hover { color: #25D366; }
+.social-icon.facebook:hover { color: #1877F2; }
+.social-icon.instagram:hover { color: #E4405F; }
+
+@keyframes pulse-heart {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+    </style>
+</head>
+<body>
+
+    <!-- تسجيل الدخول -->
+    <div id="login-section" class="login-wrapper">
+        <i class="fa-solid fa-user-gear fa-3x" style="color: var(--accent-blue); margin-bottom: 15px;"></i>
+        <h2>تسجيل دخول المهندس</h2>
+        <div class="form-group">
+            <label>اسم المستخدم / الكود:</label>
+            <input type="text" id="username-input" placeholder="مثال: 1111">
+        </div>
+        <div class="form-group">
+            <label>كلمة المرور:</label>
+            <input type="password" id="password-input" placeholder="أدخل كلمة المرور">
+        </div>
+        <button class="login-btn" onclick="loginEngineer()">تسجيل الدخول</button>
+    </div>
+
+    <!-- شاشة اللوحة -->
+    <div id="dashboard-section" class="hidden">
+        <div class="header">
+            <div class="engineer-info">
+                <i class="fa-solid fa-user-gear"></i>
+                <div class="engineer-details">
+                    <h2 id="engineer-name">---</h2>
+                    <p><span id="engineer-office">---</span> | <span id="engineer-college">---</span></p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        </div>
+
+        <div class="container">
+            <div class="controls-bar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--gray);"></i>
+                    <input type="text" id="search-input" placeholder="بحث بكود الطلب..." onkeyup="renderTickets()">
+                </div>
+                <div class="tabs">
+                    <button class="tab-btn active" id="tab-active" onclick="switchTab('active')">الطلبات الحالية</button>
+                    <button class="tab-btn" id="tab-skipped" onclick="switchTab('skipped')">الطلبات المتخطاة</button>
+                </div>
+            </div>
+
+            <div id="queue-container" class="queue-list"></div>
+        </div>
+    </div>
+
+    <div class="bottom-footer">
+    <div class="footer-credits">
+        <span>Developed with</span>
+        <i class="fa-solid fa-heart heart-icon"></i>
+        <span>by <strong>Eng. Mohamed Elsayed</strong></span>
+    </div>
+
+    <div class="social-links">
+        <a href="https://wa.me/01004335462" target="_blank" class="social-icon whatsapp" title="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        
+        <a href="https://www.facebook.com/share/18NjzVPKGe/" target="_blank" class="social-icon facebook" title="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+        </a>
+
+        <a href="https://www.instagram.com/mohamed_alsayid995?igsi=MW85ZnI1ZzdocTJiMg==" target="_blank" class="social-icon instagram" title="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+        </a>
+    </div>
+</div>
+
+<script src="db.js"></script>
+<script>
+    let currentEngineer = null;
+    let allTickets = [];
+    let studentsMap = {};
+    let currentTab = 'active';
+    let statusInterval = null;
+
+    window.onload = function() {
+        const savedUser = localStorage.getItem("current_engineer");
+        if (savedUser) {
+            currentEngineer = JSON.parse(savedUser);
+            initDashboard();
+        }
+    };
+
+    async function loginEngineer() {
+        const username = document.getElementById("username-input").value.trim();
+        const password = document.getElementById("password-input").value.trim();
+
+        if (!username || !password) {
+            alert("يرجى إدخال البيانات");
+            return;
+        }
+
+        try {
+            const users = await supabaseRequest(`users?username=eq.${username}&password=eq.${password}&select=*`);
+            
+            if (users && users.length > 0) {
+                const user = users[0];
+                if (user.role === 'sis_employee' || user.role === 'admin') {
+                    currentEngineer = user;
+                    localStorage.setItem("current_engineer", JSON.stringify(user));
+                    initDashboard();
+                } else {
+                    alert("هذا الحساب ليس مهندس");
+                }
+            } else {
+                alert("بيانات الدخول غير صحيحة");
+            }
+        } catch(e) {
+            alert("خطأ الاتصال: " + e.message);
+        }
+    }
+
+    async function initDashboard() {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("dashboard-section").classList.remove("hidden");
+
+        document.getElementById("engineer-name").textContent = currentEngineer.full_name;
+        document.getElementById("engineer-office").textContent = currentEngineer.office_name || "مكتب SIS";
+
+        try {
+            const colleges = await supabaseRequest(`colleges?id=eq.${currentEngineer.college_id}&select=name`);
+            if (colleges && colleges.length > 0) {
+                document.getElementById("engineer-college").textContent = colleges[0].name;
+            }
+        } catch(e) { console.error(e); }
+
+        fetchTickets();
+        if (statusInterval) clearInterval(statusInterval);
+        statusInterval = setInterval(fetchTickets, 3000);
+    }
+
+    // جلب الطلبات بأسلوب بسيط ومباشر بناءً على college_id
+    async function fetchTickets() {
+        if (!currentEngineer || !currentEngineer.college_id) return;
+        
+        try {
+            // 1. جلب التذاكر الخاصة بهذه الكلية
+            const tickets = await supabaseRequest(`tickets?college_id=eq.${currentEngineer.college_id}&status=neq.completed&select=*&order=ticket_number.asc`);
+            allTickets = tickets || [];
+
+            // 2. جلب أسماء الطلاب المرتبطين بهذه التذاكر
+            if (allTickets.length > 0) {
+                const studentIds = [...new Set(allTickets.map(t => t.student_id))];
+                const students = await supabaseRequest(`users?id=in.(${studentIds.join(',')})&select=id,full_name`);
+                
+                studentsMap = {};
+                if (students) {
+                    students.forEach(s => { studentsMap[s.id] = s.full_name; });
+                }
+            }
+
+            renderTickets();
+        } catch(e) {
+            console.error("خطأ جلب الطلبات:", e);
+        }
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById("tab-active").classList.toggle("active", tab === 'active');
+        document.getElementById("tab-skipped").classList.toggle("active", tab === 'skipped');
+        renderTickets();
+    }
+
+    function renderTickets() {
+        const container = document.getElementById("queue-container");
+        const searchQuery = document.getElementById("search-input").value.trim().toLowerCase();
+        
+        container.innerHTML = "";
+
+        let filtered = allTickets.filter(t => {
+            return currentTab === 'active' ? (t.status === 'pending' || t.status === 'serving') : (t.status === 'skipped');
+        });
+
+        if (searchQuery) {
+            filtered = filtered.filter(t => 
+                `P-${t.ticket_number}`.toLowerCase().includes(searchQuery) ||
+                t.ticket_number.toString().includes(searchQuery) ||
+                (studentsMap[t.student_id] && studentsMap[t.student_id].toLowerCase().includes(searchQuery))
+            );
+        }
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-inbox fa-2x" style="margin-bottom:10px;"></i>
+                    <p>لا توجد طلبات للعرض.</p>
+                </div>`;
+            return;
+        }
+
+        filtered.forEach(ticket => {
+            const studentName = studentsMap[ticket.student_id] || 'طالب';
+            const item = document.createElement("div");
+            item.className = `ticket-item status-${ticket.status}`;
+
+            item.innerHTML = `
+                <div class="ticket-main">
+                    <div class="ticket-badge">P-${ticket.ticket_number}</div>
+                    <div class="ticket-info">
+                        <h4>${studentName}</h4>
+                        <p><i class="fa-solid fa-list-check"></i> المشكلة: <b>${ticket.issue_type || 'غير محدد'}</b></p>
+                        <p><i class="fa-solid fa-info-circle"></i> الحالة: ${getStatusBadge(ticket.status)}</p>
+                    </div>
+                </div>
+                <div class="ticket-actions">
+                    ${getActionsHTML(ticket)}
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    function getStatusBadge(status) {
+        if(status === 'serving') return '<span style="color:var(--green); font-weight:bold;">جاري الخدمة الآن</span>';
+        if(status === 'pending') return '<span style="color:var(--orange);">في الانتظار</span>';
+        if(status === 'skipped') return '<span style="color:var(--red);">متخطي</span>';
+        return status;
+    }
+
+    function getActionsHTML(ticket) {
+        let buttons = '';
+        if (ticket.status === 'pending' || ticket.status === 'skipped') {
+            buttons += `<button class="btn btn-start" onclick="updateTicketStatus(${ticket.id}, 'serving')"><i class="fa-solid fa-door-open"></i> فتح الطلب</button>`;
+        }
+        if (ticket.status === 'serving') {
+            buttons += `<button class="btn btn-complete" onclick="updateTicketStatus(${ticket.id}, 'completed')"><i class="fa-solid fa-check"></i> إنهاء الطلب</button>`;
+        }
+        if (ticket.status !== 'skipped') {
+            buttons += `<button class="btn btn-skip" onclick="updateTicketStatus(${ticket.id}, 'skipped')"><i class="fa-solid fa-forward"></i> تخطي</button>`;
+        }
+        buttons += `<button class="btn btn-delete" onclick="deleteTicket(${ticket.id})"><i class="fa-solid fa-trash"></i> حذف</button>`;
+        return buttons;
+    }
+
+    async function updateTicketStatus(ticketId, newStatus) {
+        try {
+            await supabaseRequest(`tickets?id=eq.${ticketId}`, "PATCH", { 
+                status: newStatus,
+                served_by_employee_id: currentEngineer.id 
+            });
+            fetchTickets();
+        } catch(e) {
+            alert("حدث خطأ: " + e.message);
+        }
+    }
+
+    async function deleteTicket(ticketId) {
+        if(!confirm("مسح هذا الطلب؟")) return;
+        try {
+            await supabaseRequest(`tickets?id=eq.${ticketId}`, "DELETE");
+            fetchTickets();
+        } catch(e) {
+            alert("حدث خطأ: " + e.message);
+        }
+    }
+
+    function logout() {
+        if(statusInterval) clearInterval(statusInterval);
+        localStorage.removeItem("current_engineer");
+        currentEngineer = null;
+        document.getElementById("login-section").classList.remove("hidden");
+        document.getElementById("dashboard-section").classList.add("hidden");
+    }
+</script>
+</body>
+</html>
