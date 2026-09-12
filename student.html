@@ -1281,8 +1281,20 @@ async function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
+    // إظهار مؤشر التحميل وتغيير نص الزر أو خيارات الواجهة
+    const fileInput = e.target;
+    fileInput.disabled = true;
+    
+    // إنشاء تنبيه بسيط بالرفع في أسفل محادثة الطالب
+    const container = document.getElementById("chat-messages-container");
+    const loadingDiv = document.createElement("div");
+    loadingDiv.id = "temp-image-loading";
+    loadingDiv.style.cssText = "text-align: center; color: #64748b; font-size: 13px; padding: 8px; margin: 4px 0;";
+    loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-left: 6px;"></i> جاري رفع الصورة، يرجى الانتظار...`;
+    container.appendChild(loadingDiv);
+    container.scrollTop = container.scrollHeight;
+
     try {
-        // تحويل الصورة إلى Base64 لرفعها وحفظها بشكل مباشر في قاعدة البيانات بدون التعقد مع Storage
         const reader = new FileReader();
         reader.onload = async function (event) {
             const base64Image = event.target.result;
@@ -1294,14 +1306,27 @@ async function handleImageUpload(e) {
                     college_id: currentUser.college_id,
                     image_url: base64Image
                 });
+                
+                // إزالة مؤشر التحميل وإعادة تفعيل المدخل
+                const tempLoading = document.getElementById("temp-image-loading");
+                if (tempLoading) tempLoading.remove();
+                fileInput.disabled = false;
+                fileInput.value = ""; // تفريغ حقل الاختيار لتمكين رفع نفس الصورة مجدداً إن أراد
+
                 loadStudentMessages(true);
             } catch (err) {
+                const tempLoading = document.getElementById("temp-image-loading");
+                if (tempLoading) tempLoading.remove();
+                fileInput.disabled = false;
                 alert("خطأ في رفع الصورة: " + err.message);
             }
         };
         reader.readAsDataURL(file);
 
     } catch (err) { 
+        const tempLoading = document.getElementById("temp-image-loading");
+        if (tempLoading) tempLoading.remove();
+        fileInput.disabled = false;
         alert("خطأ في قراءة الصورة: " + err.message); 
     }
 }

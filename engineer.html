@@ -1092,10 +1092,23 @@ async function sendEngChatMessage() {
 async function handleEngImageUpload(e) {
     if (!selectedStudentForChat) {
         alert("يرجى اختيار طالب أولاً");
+        e.target.value = "";
         return;
     }
     const file = e.target.files[0];
     if (!file) return;
+
+    const fileInput = e.target;
+    fileInput.disabled = true;
+
+    // إظهار مؤشر التحميل في منطقة محادثة المهندس
+    const container = document.getElementById("engineer-messages-container");
+    const loadingDiv = document.createElement("div");
+    loadingDiv.id = "temp-eng-image-loading";
+    loadingDiv.style.cssText = "text-align: center; color: #64748b; font-size: 13px; padding: 8px; margin: 4px 0;";
+    loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-left: 6px;"></i> جاري رفع الصورة للطالب...`;
+    container.appendChild(loadingDiv);
+    container.scrollTop = container.scrollHeight;
 
     try {
         const reader = new FileReader();
@@ -1116,15 +1129,29 @@ async function handleEngImageUpload(e) {
                     selectedStudentForChat.unreadCount = 0;
                 }
 
+                // إزالة مؤشر التحميل
+                const tempLoading = document.getElementById("temp-eng-image-loading");
+                if (tempLoading) tempLoading.remove();
+                fileInput.disabled = false;
+                fileInput.value = "";
+
                 fetchCollegeChatStudents(true);
                 loadEngStudentMessages(selectedStudentForChat.id, true);
             } catch (err) {
+                const tempLoading = document.getElementById("temp-eng-image-loading");
+                if (tempLoading) tempLoading.remove();
+                fileInput.disabled = false;
                 alert("خطأ في رفع الصورة: " + err.message);
             }
         };
         reader.readAsDataURL(file);
 
-    } catch (err) { alert("خطأ في قراءة الصورة: " + err.message); }
+    } catch (err) { 
+        const tempLoading = document.getElementById("temp-eng-image-loading");
+        if (tempLoading) tempLoading.remove();
+        fileInput.disabled = false;
+        alert("خطأ في قراءة الصورة: " + err.message); 
+    }
 }
 
     function logout() {
