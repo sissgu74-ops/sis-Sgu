@@ -431,6 +431,333 @@
             100% { transform: scale(1); }
         }
 
+
+
+
+    /* =========================================================
+   تنسيقات نافذة المحادثات الكاملة (Chat Overlay / Tab)
+   ========================================================= */
+
+/* شاشة المحادثة الكاملة */
+.chat-tab-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--light-bg);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* حاوية المحادثة للطالب */
+.chat-card {
+    width: 100%;
+    max-width: 500px;
+    height: 100vh;
+    background: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 25px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+/* حاوية المحادثة للمهندس (نظام الشاشتين) */
+.engineer-chat-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    height: 92vh;
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* الهيدر العلوي للمحادثات */
+.chat-header {
+    background: linear-gradient(135deg, #102a43 0%, var(--primary-blue) 100%);
+    color: #ffffff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.chat-header small {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(239, 68, 68, 0.8);
+}
+
+/* الشريط الجانبي للمهندس */
+.chat-sidebar {
+    width: 320px;
+    background: #f8fafc;
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chat-search-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    box-sizing: border-box;
+    transition: border 0.2s;
+}
+
+.chat-search-input:focus {
+    border-color: var(--accent-blue);
+}
+
+.students-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.student-chat-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.student-chat-item:hover {
+    background: #edf4fc;
+}
+
+.student-chat-item.active {
+    background: #e0eefc;
+    border-right: 4px solid var(--accent-blue);
+}
+
+.student-chat-info strong {
+    font-size: 14px;
+    color: var(--text-dark);
+    display: block;
+}
+
+.student-chat-info small {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* المنطقة الرئيسية للرسائل */
+.chat-main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f4f7f9;
+}
+
+.chat-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* فقاعات الرسائل */
+.chat-bubble {
+    max-width: 68%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    position: relative;
+    word-wrap: break-word;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.chat-bubble.outgoing {
+    background: linear-gradient(135deg, var(--accent-blue) 0%, #0052a3 100%);
+    color: #ffffff;
+    align-self: flex-end;
+    border-bottom-left-radius: 2px;
+}
+
+.chat-bubble.incoming {
+    background: #ffffff;
+    color: var(--text-dark);
+    align-self: flex-start;
+    border-bottom-right-radius: 2px;
+    border: 1px solid var(--border-color);
+}
+
+.chat-time {
+    font-size: 10px;
+    margin-top: 4px;
+    display: block;
+    text-align: left;
+    opacity: 0.75;
+}
+
+.chat-img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 5px;
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.chat-img:hover {
+    transform: scale(1.02);
+}
+
+/* فوتر إدخال الرسائل */
+.chat-footer {
+    padding: 12px 16px;
+    background: #ffffff;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-footer input[type="text"] {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    outline: none;
+    font-size: 14px;
+    background: #f8fafc;
+}
+
+.chat-footer input[type="text"]:focus {
+    border-color: var(--accent-blue);
+    background: #fff;
+}
+
+.icon-btn, .send-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    background: #f1f5f9;
+    color: var(--accent-blue);
+}
+
+.send-btn {
+    background: var(--accent-blue);
+    color: #fff;
+}
+
+.send-btn:hover {
+    background: #0052a3;
+    transform: scale(1.05);
+}
+
+/* شارات الإشعارات (Badges) */
+.chat-toggle-btn, .chat-notify-btn {
+    position: relative;
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(27, 54, 93, 0.25);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.chat-toggle-btn:hover, .chat-notify-btn:hover {
+    background: var(--accent-blue);
+    transform: translateY(-2px);
+}
+
+.badge {
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+    animation: pulseBadge 1.5s infinite;
+}
+
+@keyframes pulseBadge {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+
+
+
+
+
         /* Footer */
         .bottom-footer {
         background: var(--primary-blue, #1b365d);
@@ -513,6 +840,37 @@
             <p class="welcome-text" id="student-welcome-title">مرحباً بك، طالب</p>
             <p class="sub-welcome">نحن هنا لخدمتك</p>
         </div>
+
+
+        <!-- زر فتح الشات في الصفحة الرئيسيّة -->
+<button class="chat-toggle-btn" onclick="openStudentChat()">
+    <i class="fa-solid fa-comments"></i> المحادثة مع المهندس
+    <span id="student-unread-badge" class="badge hidden">0</span>
+</button>
+
+<!-- شاشة الشات المباشر كـ Tab كامل -->
+<div id="student-chat-tab" class="chat-tab-overlay hidden">
+    <div class="chat-card">
+        <div class="chat-header">
+            <div>
+                <h3 id="chat-student-info">المحادثات المباشرة</h3>
+                <small id="chat-engineer-info">الدعم الفني والخدمات الطلابية</small>
+            </div>
+            <button class="close-btn" onclick="closeStudentChat()">✕</button>
+        </div>
+        <div class="chat-body" id="chat-messages-container"></div>
+        <div class="chat-footer">
+            <input type="file" id="chat-image-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+            <button class="icon-btn" onclick="document.getElementById('chat-image-input').click()" title="إرفاق صورة">
+                <i class="fa-solid fa-paperclip"></i>
+            </button>
+            <input type="text" id="chat-text-input" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+            <button class="send-btn" onclick="sendChatMessage()" title="إرسال">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
 
         <div id="no-ticket-view">
             <div class="section-divider">
@@ -782,6 +1140,157 @@
             default: return status;
         }
     }
+
+let chatInterval = null;
+let studentChatInterval = null;
+let lastStudentMsgCount = 0;
+
+// فحص الإشعارات الدورية في الخلفية
+setInterval(checkStudentUnreadMessages, 4000);
+
+async function checkStudentUnreadMessages() {
+    if (!currentUser) return;
+    try {
+        const msgs = await supabaseRequest(`messages?student_id=eq.${currentUser.id}&order=created_at.desc&select=id,sender_id`);
+        if (!msgs) return;
+        
+        // حساب الرسائل الواردة من المهندس
+        const incoming = msgs.filter(m => m.sender_id !== currentUser.id);
+        const badge = document.getElementById("student-unread-badge");
+        
+        const isChatOpen = !document.getElementById("student-chat-tab").classList.contains("hidden");
+        if (!isChatOpen && incoming.length > lastStudentMsgCount) {
+            badge.textContent = incoming.length - lastStudentMsgCount;
+            badge.classList.remove("hidden");
+        }
+    } catch(e) { console.error(e); }
+}
+
+function openStudentChat() {
+    document.getElementById("student-chat-tab").classList.remove("hidden");
+    const badge = document.getElementById("student-unread-badge");
+    if (badge) badge.classList.add("hidden");
+    
+    const infoHeader = document.getElementById("chat-student-info");
+    if (infoHeader && currentUser) infoHeader.textContent = currentUser.full_name;
+    
+    loadStudentMessages(false); // تحميل أولي
+    
+    if (studentChatInterval) clearInterval(studentChatInterval);
+    // تحديث حي بدون وميض كل 2.5 ثانية
+    studentChatInterval = setInterval(() => {
+        loadStudentMessages(true);
+    }, 2500);
+}
+
+function closeStudentChat() {
+    document.getElementById("student-chat-tab").classList.add("hidden");
+    if (studentChatInterval) clearInterval(studentChatInterval);
+}
+
+async function loadStudentMessages(isSilent = false) {
+    if (!currentUser) return;
+
+    try {
+        const messages = await supabaseRequest(`messages?student_id=eq.${currentUser.id}&order=created_at.asc&select=*`);
+        const container = document.getElementById("chat-messages-container");
+        if (!container || !messages) return;
+
+        const incomingMsgs = messages.filter(m => m.sender_id !== currentUser.id);
+        lastStudentMsgCount = incomingMsgs.length;
+
+        // منع الوميض: قراءة الرسائل الموجودة حالياً بالفئة data-msg-id
+        const existingMsgIds = new Set(Array.from(container.querySelectorAll('[data-msg-id]')).map(el => el.getAttribute('data-msg-id')));
+
+        if (!isSilent) {
+            container.innerHTML = "";
+            existingMsgIds.clear();
+        }
+
+        const newMessages = messages.filter(m => !existingMsgIds.has(String(m.id)));
+
+        // إذا لم تكن هناك رسائل جديدة وكان التحديث هادئاً، لا نلمس الشاشة لتجنب الوميض
+        if (isSilent && newMessages.length === 0) return;
+
+        // جلب أسماء المهندسين المشاركين بالرد
+        const senderIds = [...new Set(messages.map(m => m.sender_id))];
+        const senders = await supabaseRequest(`users?id=in.(${senderIds.join(',')})&select=id,full_name,username`);
+        const sendersMap = {};
+        (senders || []).forEach(u => sendersMap[u.id] = u);
+
+        let addedCount = 0;
+        messages.forEach(msg => {
+            if (isSilent && existingMsgIds.has(String(msg.id))) return;
+
+            const isMe = msg.sender_id === currentUser.id;
+            const senderUser = sendersMap[msg.sender_id];
+            const engName = senderUser ? (senderUser.full_name || senderUser.username) : "المهندس المختص";
+
+            const msgDiv = document.createElement("div");
+            msgDiv.setAttribute('data-msg-id', msg.id);
+            msgDiv.className = `chat-bubble ${isMe ? 'outgoing' : 'incoming'}`;
+            
+            let timeStr = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let content = '';
+            
+            if (msg.message) content += `<p style="margin:0">${msg.message}</p>`;
+            if (msg.image_url) content += `<img src="${msg.image_url}" class="chat-img" onclick="window.open(this.src)" />`;
+            
+            // إذا كان المرسل هو المهندس، يتم إرفاق اسمه بخط صغير بجوار الوقت
+            if (!isMe) {
+                content += `
+                    <div class="chat-meta" style="font-size: 10px; opacity: 0.8; margin-top: 4px; display: flex; justify-content: space-between; gap: 8px;">
+                        <span class="chat-engineer-name" style="font-weight: 600;">👨‍🏫 ${engName}</span>
+                        <span class="chat-time">${timeStr}</span>
+                    </div>
+                `;
+            } else {
+                content += `<span class="chat-time">${timeStr}</span>`;
+            }
+            
+            msgDiv.innerHTML = content;
+            container.appendChild(msgDiv);
+            addedCount++;
+        });
+
+        if (addedCount > 0 || !isSilent) {
+            container.scrollTop = container.scrollHeight;
+        }
+    } catch(e) { console.error("خطأ تحصيل الرسائل:", e); }
+}
+
+async function sendChatMessage() {
+    const textInput = document.getElementById("chat-text-input");
+    const text = textInput.value.trim();
+    if (!text) return;
+
+    try {
+        await supabaseRequest("messages", "POST", {
+            sender_id: currentUser.id,
+            student_id: currentUser.id,
+            college_id: currentUser.college_id,
+            message: text
+        });
+        textInput.value = "";
+        loadStudentMessages(true);
+    } catch(e) { alert("فشل الإرسال: " + e.message); }
+}
+
+async function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+        const imageUrl = await uploadImageToSupabase(file, currentUser.username);
+        await supabaseRequest("messages", "POST", {
+            sender_id: currentUser.id,
+            student_id: currentUser.id,
+            college_id: currentUser.college_id,
+            image_url: imageUrl
+        });
+        loadStudentMessages(true);
+    } catch(err) { alert("خطأ في رفع الصورة: " + err.message); }
+}
 
     function logout() {
         clearInterval(statusInterval);
