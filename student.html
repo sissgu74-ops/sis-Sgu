@@ -1276,20 +1276,34 @@ async function sendChatMessage() {
     } catch(e) { alert("فشل الإرسال: " + e.message); }
 }
 
+// دالة رفع الصور المباشرة المدمجة لتجنب خطأ uploadImageToSupabase is not defined
 async function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
     try {
-        const imageUrl = await uploadImageToSupabase(file, currentUser.username);
-        await supabaseRequest("messages", "POST", {
-            sender_id: currentUser.id,
-            student_id: currentUser.id,
-            college_id: currentUser.college_id,
-            image_url: imageUrl
-        });
-        loadStudentMessages(true);
-    } catch(err) { alert("خطأ في رفع الصورة: " + err.message); }
+        // تحويل الصورة إلى Base64 لرفعها وحفظها بشكل مباشر في قاعدة البيانات بدون التعقد مع Storage
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+            const base64Image = event.target.result;
+            
+            try {
+                await supabaseRequest("messages", "POST", {
+                    sender_id: currentUser.id,
+                    student_id: currentUser.id,
+                    college_id: currentUser.college_id,
+                    image_url: base64Image
+                });
+                loadStudentMessages(true);
+            } catch (err) {
+                alert("خطأ في رفع الصورة: " + err.message);
+            }
+        };
+        reader.readAsDataURL(file);
+
+    } catch (err) { 
+        alert("خطأ في قراءة الصورة: " + err.message); 
+    }
 }
 
     function logout() {
