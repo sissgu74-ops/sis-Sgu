@@ -1088,6 +1088,7 @@ async function sendEngChatMessage() {
     } catch(e) { alert("فشل الإرسال: " + e.message); }
 }
 
+// دالة رفع صورة المهندس المعدلة (بدون الاعتماد على uploadImageToSupabase)
 async function handleEngImageUpload(e) {
     if (!selectedStudentForChat) {
         alert("يرجى اختيار طالب أولاً");
@@ -1097,23 +1098,33 @@ async function handleEngImageUpload(e) {
     if (!file) return;
 
     try {
-        const imageUrl = await uploadImageToSupabase(file, selectedStudentForChat.username);
-        await supabaseRequest("messages", "POST", {
-            sender_id: currentEngineer.id,
-            receiver_id: selectedStudentForChat.id,
-            student_id: selectedStudentForChat.id,
-            college_id: currentEngineer.college_id,
-            image_url: imageUrl
-        });
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+            const base64Image = event.target.result;
 
-        if (selectedStudentForChat.totalIncomingMsgs !== undefined) {
-            saveReadCount(selectedStudentForChat.id, selectedStudentForChat.totalIncomingMsgs);
-            selectedStudentForChat.unreadCount = 0;
-        }
+            try {
+                await supabaseRequest("messages", "POST", {
+                    sender_id: currentEngineer.id,
+                    receiver_id: selectedStudentForChat.id,
+                    student_id: selectedStudentForChat.id,
+                    college_id: currentEngineer.college_id,
+                    image_url: base64Image
+                });
 
-        fetchCollegeChatStudents(true);
-        loadEngStudentMessages(selectedStudentForChat.id, true);
-    } catch(err) { alert("خطأ في رفع الصورة: " + err.message); }
+                if (selectedStudentForChat.totalIncomingMsgs !== undefined) {
+                    saveReadCount(selectedStudentForChat.id, selectedStudentForChat.totalIncomingMsgs);
+                    selectedStudentForChat.unreadCount = 0;
+                }
+
+                fetchCollegeChatStudents(true);
+                loadEngStudentMessages(selectedStudentForChat.id, true);
+            } catch (err) {
+                alert("خطأ في رفع الصورة: " + err.message);
+            }
+        };
+        reader.readAsDataURL(file);
+
+    } catch (err) { alert("خطأ في قراءة الصورة: " + err.message); }
 }
 
     function logout() {
