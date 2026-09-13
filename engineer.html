@@ -564,26 +564,38 @@ body {
         </div>
 
         <!-- منطقة شاشة الشات الفعلية -->
-        <div class="chat-main-area">
-            <div class="chat-header">
-                <div>
-                    <h3 id="active-student-header">اختر طالباً لبدء المحادثة</h3>
-                    <small id="active-student-sub">لوحة المهندس المختص</small>
-                </div>
-                <button class="close-btn" onclick="closeEngineerChatModal()">✕</button>
-            </div>
-            <div class="chat-body" id="engineer-messages-container"></div>
-            <div class="chat-footer">
-                <input type="file" id="eng-image-input" accept="image/*" style="display:none;" onchange="handleEngImageUpload(event)">
-                <button class="icon-btn" onclick="document.getElementById('eng-image-input').click()" title="إرفاق صورة">
-                    <i class="fa-solid fa-paperclip"></i>
-                </button>
-                <input type="text" id="eng-text-input" placeholder="اكتب الرد هنا..." onkeypress="if(event.key==='Enter') sendEngChatMessage()">
-                <button class="send-btn" onclick="sendEngChatMessage()" title="إرسال">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </div>
+<div class="chat-main-area">
+    <div class="chat-header">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- زر العودة لقائمة الطلاب يظهر في الهاتف فقط -->
+        <button id="back-to-students-btn" class="icon-btn" onclick="backToStudentsList()" style="color: #fff; display: none;" title="رجوع للقائمة">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <div>
+            <h3 id="active-student-header">اختر طالباً لبدء المحادثة</h3>
+            <small id="active-student-sub">لوحة المهندس المختص</small>
         </div>
+    </div>
+    <button class="close-btn" onclick="closeEngineerChatModal()">✕</button>
+</div>
+    
+    <div class="chat-body" id="engineer-messages-container"></div>
+    
+    <div class="chat-footer">
+        <!-- تم ربط الحدث بـ this مباشرة -->
+        <input type="file" id="eng-image-input" accept="image/*" style="display:none;" onchange="handleEngImageUpload(this)">
+        
+        <button class="icon-btn" onclick="document.getElementById('eng-image-input').click()" title="إرفاق صورة">
+            <i class="fa-solid fa-paperclip"></i>
+        </button>
+        
+        <input type="text" id="eng-text-input" placeholder="اكتب الرد هنا..." onkeypress="if(event.key==='Enter') sendEngChatMessage()">
+        
+        <button class="send-btn" onclick="sendEngChatMessage()" title="إرسال">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
     </div>
 </div>
 
@@ -1088,71 +1100,170 @@ async function sendEngChatMessage() {
     } catch(e) { alert("فشل الإرسال: " + e.message); }
 }
 
-// دالة رفع صورة المهندس المعدلة (بدون الاعتماد على uploadImageToSupabase)
-async function handleEngImageUpload(e) {
+async function handleEngImageUpload(inputElement) {
+    // 1. التحقق من اختيار طالب أولاً
     if (!selectedStudentForChat) {
-        alert("يرجى اختيار طالب أولاً");
-        e.target.value = "";
+        alert("يرجى اختيار طالب من القائمة أولاً قبل رفع الصورة!");
+        if (inputElement) inputElement.value = "";
         return;
     }
-    const file = e.target.files[0];
+
+    // 2. قراءة الملف من المدخل
+    const file = inputElement.files ? inputElement.files[0] : null;
     if (!file) return;
 
-    const fileInput = e.target;
-    fileInput.disabled = true;
+    inputElement.disabled = true;
 
-    // إظهار مؤشر التحميل في منطقة محادثة المهندس
+    // 3. تحديد الحاوية وإظهار مؤشر التحميل
     const container = document.getElementById("engineer-messages-container");
     const loadingDiv = document.createElement("div");
     loadingDiv.id = "temp-eng-image-loading";
-    loadingDiv.style.cssText = "text-align: center; color: #64748b; font-size: 13px; padding: 8px; margin: 4px 0;";
-    loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-left: 6px;"></i> جاري رفع الصورة للطالب...`;
-    container.appendChild(loadingDiv);
-    container.scrollTop = container.scrollHeight;
+    loadingDiv.style.cssText = "text-align: center; color: #2563eb; font-size: 13px; font-weight: bold; padding: 10px; background: #eff6ff; border-radius: 8px; margin: 8px 0;";
+    loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-left: 6px;"></i> جاري رفع الصورة...`;
+    
+    if (container) {
+        container.appendChild(loadingDiv);
+        container.scrollTop = container.scrollHeight;
+    }
 
     try {
-        const reader = new FileReader();
-        reader.onload = async function (event) {
-            const base64Image = event.target.result;
+        const apiKey = typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : (typeof SUPABASE_KEY !== 'undefined' ? SUPABASE_KEY : null);
+        const baseUrl = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : (typeof supabaseUrl !== 'undefined' ? supabaseUrl : null);
 
-            try {
-                await supabaseRequest("messages", "POST", {
-                    sender_id: currentEngineer.id,
-                    receiver_id: selectedStudentForChat.id,
-                    student_id: selectedStudentForChat.id,
-                    college_id: currentEngineer.college_id,
-                    image_url: base64Image
-                });
+        if (!apiKey || !baseUrl) throw new Error("لم يتم العثور على مفتاح Supabase.");
 
-                if (selectedStudentForChat.totalIncomingMsgs !== undefined) {
-                    saveReadCount(selectedStudentForChat.id, selectedStudentForChat.totalIncomingMsgs);
-                    selectedStudentForChat.unreadCount = 0;
-                }
+        // تجهيز مسار الحفظ في المجلد المخصص للطالب داخل البوكيت photo
+        const studentFolder = selectedStudentForChat.username || selectedStudentForChat.student_code || selectedStudentForChat.id;
+        const fileExt = file.name.split('.').pop();
+        const fileName = `eng_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+        const filePath = `${studentFolder}/${fileName}`;
 
-                // إزالة مؤشر التحميل
-                const tempLoading = document.getElementById("temp-eng-image-loading");
-                if (tempLoading) tempLoading.remove();
-                fileInput.disabled = false;
-                fileInput.value = "";
+        // 4. الرفع إلى bucket المسماه photo
+        const uploadResponse = await fetch(`${baseUrl}/storage/v1/object/photo/${filePath}`, {
+            method: 'POST',
+            headers: {
+                'apikey': apiKey,
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': file.type
+            },
+            body: file
+        });
 
-                fetchCollegeChatStudents(true);
-                loadEngStudentMessages(selectedStudentForChat.id, true);
-            } catch (err) {
-                const tempLoading = document.getElementById("temp-eng-image-loading");
-                if (tempLoading) tempLoading.remove();
-                fileInput.disabled = false;
-                alert("خطأ في رفع الصورة: " + err.message);
-            }
-        };
-        reader.readAsDataURL(file);
+        if (!uploadResponse.ok) {
+            const errData = await uploadResponse.json();
+            throw new Error(errData.message || "فشل رفع الملف إلى الخادم");
+        }
+
+        const publicImageUrl = `${baseUrl}/storage/v1/object/public/photo/${filePath}`;
+
+        // 5. حفظ الرسالة في الجدول
+        await supabaseRequest("messages", "POST", {
+            sender_id: currentEngineer.id,
+            receiver_id: selectedStudentForChat.id,
+            student_id: selectedStudentForChat.id,
+            college_id: currentEngineer.college_id,
+            image_url: publicImageUrl
+        });
+
+        // 6. التنظيف وإعادة التحديث
+        const tempLoading = document.getElementById("temp-eng-image-loading");
+        if (tempLoading) tempLoading.remove();
+        
+        inputElement.disabled = false;
+        inputElement.value = ""; 
+
+        if (selectedStudentForChat.totalIncomingMsgs !== undefined) {
+            saveReadCount(selectedStudentForChat.id, selectedStudentForChat.totalIncomingMsgs);
+            selectedStudentForChat.unreadCount = 0;
+        }
+
+        fetchCollegeChatStudents(true);
+        loadEngStudentMessages(selectedStudentForChat.id, true);
 
     } catch (err) { 
         const tempLoading = document.getElementById("temp-eng-image-loading");
         if (tempLoading) tempLoading.remove();
-        fileInput.disabled = false;
-        alert("خطأ في قراءة الصورة: " + err.message); 
+        
+        inputElement.disabled = false;
+        inputElement.value = "";
+        alert("خطأ في رفع الصورة: " + err.message); 
     }
 }
+
+
+
+// 1. عند اختيار طالب: إخفاء القائمة في الهاتف وتنشيط الشات
+const originalRenderChatStudentsList = renderChatStudentsList;
+function renderChatStudentsList(list) {
+    const container = document.getElementById("chat-students-list");
+    container.innerHTML = "";
+
+    list.forEach(std => {
+        const item = document.createElement("div");
+        item.className = `student-chat-item ${selectedStudentForChat?.id === std.id ? 'active' : ''}`;
+        
+        const badgeHTML = std.unreadCount > 0 
+            ? `<span class="student-unread-badge">${std.unreadCount} جديد</span>`
+            : `<i class="fa-solid fa-chevron-left" style="font-size: 12px; color: #cbd5e1;"></i>`;
+
+        item.innerHTML = `
+            <div class="student-chat-info">
+                <strong>${std.full_name}</strong>
+                <small>كود: ${std.username}</small>
+            </div>
+            ${badgeHTML}
+        `;
+
+        item.onclick = () => {
+            selectedStudentForChat = std;
+            saveReadCount(std.id, std.totalIncomingMsgs);
+            std.unreadCount = 0;
+
+            document.getElementById("active-student-header").textContent = std.full_name;
+            document.getElementById("active-student-sub").textContent = `كود الطالب: ${std.username}`;
+            
+            // إضافة كلاس للتجاوب مع الهواتف
+            const wrapper = document.querySelector('.engineer-chat-wrapper');
+            if (wrapper) wrapper.classList.add('student-selected');
+            
+            // إظهار زر العودة للقائمة في الهواتف
+            if (window.innerWidth <= 768) {
+                const backBtn = document.getElementById('back-to-students-btn');
+                if (backBtn) backBtn.style.display = 'block';
+            }
+
+            renderChatStudentsList(allCollegeChatStudents);
+            checkEngineerUnreadMessages();
+            loadEngStudentMessages(std.id, false);
+        };
+        container.appendChild(item);
+    });
+}
+
+// 2. دالة العودة لقائمة الطلاب (خاصة بالهاتف)
+function backToStudentsList() {
+    const wrapper = document.querySelector('.engineer-chat-wrapper');
+    if (wrapper) wrapper.classList.remove('student-selected');
+
+    const backBtn = document.getElementById('back-to-students-btn');
+    if (backBtn) backBtn.style.display = 'none';
+}
+
+// 3. التمرير التلقائي وحل مشكلة الكيبورد للمهندس
+document.addEventListener("DOMContentLoaded", function() {
+    const engInput = document.getElementById('eng-text-input');
+    if (engInput) {
+        engInput.addEventListener('focus', function() {
+            setTimeout(() => {
+                const container = document.getElementById('engineer-messages-container');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }, 300);
+        });
+    }
+});
+
 
     function logout() {
         if(statusInterval) clearInterval(statusInterval);

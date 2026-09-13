@@ -434,8 +434,9 @@
 
 
 
-    /* =========================================================
+/* =========================================================
    تنسيقات نافذة المحادثات الكاملة (Chat Overlay / Tab)
+   متوافقة بالكامل مع لوحة مفاتيح الهاتف الذكي
    ========================================================= */
 
 /* شاشة المحادثة الكاملة */
@@ -443,13 +444,18 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    /* 100dvh تضمن تعديل الارتفاع تلقائياً فور ظهور لوحة المفاتيح */
     height: 100vh;
+    height: 100dvh; 
     background: var(--light-bg);
     z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
     animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -458,23 +464,26 @@
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* حاوية المحادثة للطالب */
+/* حاوية المحادثة للطالب (إعادة ضبط الارتفاع للتجاوب مع الهاتف) */
 .chat-card {
     width: 100%;
     max-width: 500px;
-    height: 100vh;
+    height: 100%;
+    height: 100dvh; /* الاستجابة التلقائية للارتفاع المتبقي من الشاشة */
     background: var(--card-bg);
     display: flex;
     flex-direction: column;
     box-shadow: 0 0 25px rgba(0,0,0,0.15);
     position: relative;
+    overflow: hidden;
 }
 
-/* حاوية المحادثة للمهندس (نظام الشاشتين) */
+/* حاوية المحادثة للمهندس */
 .engineer-chat-wrapper {
     width: 100%;
     max-width: 1100px;
     height: 92vh;
+    height: 92dvh;
     background: var(--card-bg);
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.12);
@@ -493,6 +502,7 @@
     justify-content: space-between;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 2;
+    flex-shrink: 0; /* منع انكماش الهيدر أثناء ظهور الكيبورد */
 }
 
 .chat-header h3 {
@@ -525,93 +535,31 @@
     background: rgba(239, 68, 68, 0.8);
 }
 
-/* الشريط الجانبي للمهندس */
-.chat-sidebar {
-    width: 320px;
-    background: #f8fafc;
-    border-left: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-sidebar-header {
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.chat-search-input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    font-size: 13px;
-    outline: none;
-    background: #fff;
-    box-sizing: border-box;
-    transition: border 0.2s;
-}
-
-.chat-search-input:focus {
-    border-color: var(--accent-blue);
-}
-
-.students-list {
-    flex: 1;
-    overflow-y: auto;
-}
-
-.student-chat-item {
-    padding: 14px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.student-chat-item:hover {
-    background: #edf4fc;
-}
-
-.student-chat-item.active {
-    background: #e0eefc;
-    border-right: 4px solid var(--accent-blue);
-}
-
-.student-chat-info strong {
-    font-size: 14px;
-    color: var(--text-dark);
-    display: block;
-}
-
-.student-chat-info small {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
 /* المنطقة الرئيسية للرسائل */
 .chat-main-area {
     flex: 1;
     display: flex;
     flex-direction: column;
     background: #f4f7f9;
+    min-height: 0; /* مهم لضمان عمل التمرير (Scroll) داخل flex child */
 }
 
 .chat-body {
     flex: 1;
-    padding: 20px;
+    padding: 15px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
     background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
     background-size: 20px 20px;
+    min-height: 0; /* يتيح تقليص المساحة ورؤية أحدث الرسائل عند فتح الكيبورد */
+    -webkit-overflow-scrolling: touch; /* تمرير سلس ومثالي على هواتف iOS */
 }
 
 /* فقاعات الرسائل */
 .chat-bubble {
-    max-width: 68%;
+    max-width: 80%; /* زيادة العرض ليتوافق أفضل مع الشاشات الصغيرة */
     padding: 10px 14px;
     border-radius: 14px;
     font-size: 13.5px;
@@ -654,28 +602,28 @@
     transition: transform 0.2s;
 }
 
-.chat-img:hover {
-    transform: scale(1.02);
-}
-
-/* فوتر إدخال الرسائل */
+/* فوتر إدخال الرسائل (مثبت وقابل للارتفاع مع الكيبورد) */
 .chat-footer {
-    padding: 12px 16px;
+    padding: 10px 12px;
     background: #ffffff;
     border-top: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    flex-shrink: 0; /* منع اختفاء الفوتر أو تقلصه */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .chat-footer input[type="text"] {
     flex: 1;
-    padding: 10px 16px;
+    padding: 10px 14px;
     border: 1px solid var(--border-color);
     border-radius: 24px;
     outline: none;
     font-size: 14px;
     background: #f8fafc;
+    min-width: 0; /* يمنع خروج حقل الكتابة عن حدود الشاشة في الهواتف الضيقة */
 }
 
 .chat-footer input[type="text"]:focus {
@@ -695,6 +643,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     transition: all 0.2s;
 }
 
@@ -708,56 +657,193 @@
     color: #fff;
 }
 
-.send-btn:hover {
-    background: #0052a3;
-    transform: scale(1.05);
+/* =========================================================
+   تكييف خاص للهواتف الذكية (Mobile Fixes)
+   ========================================================= */
+@media (max-width: 600px) {
+    .chat-card {
+        max-width: 100%;
+        border-radius: 0;
+    }
+
+    .engineer-chat-wrapper {
+        height: 100dvh;
+        border-radius: 0;
+    }
+
+    .chat-bubble {
+        max-width: 85%; /* زيادة التمدد للرسائل على الهواتف */
+    }
+
+    .chat-footer {
+        padding: 8px 10px;
+        /* حماية من السحب والتراكب لبطاقات الهواتف الحديثة مثل iPhone */
+        padding-bottom: max(10px, env(safe-area-inset-bottom)); 
+    }
 }
 
-/* شارات الإشعارات (Badges) */
-.chat-toggle-btn, .chat-notify-btn {
-    position: relative;
-    background: var(--primary-blue);
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 25px;
+
+
+
+
+
+
+/* ==========================================
+   1. تنسيق بطاقات الاختيار الرئيسية (Card Choices)
+   ========================================== */
+.choice-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin: 25px 0;
+    width: 100%;
+}
+
+.main-choice-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 30px 20px;
+    text-align: center;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 13px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 2px solid rgba(220, 224, 230, 0.6);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* تأثير التمرير (Hover) */
+.main-choice-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0, 102, 204, 0.12);
+}
+
+.chat-choice:hover {
+    border-color: #0066cc;
+}
+
+.queue-choice:hover {
+    border-color: #2e7d32;
+}
+
+/* الأيقونات داخل البطاقات */
+.main-choice-card .choice-icon {
+    width: 75px;
+    height: 75px;
+    margin-bottom: 18px;
+    border-radius: 22px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(27, 54, 93, 0.25);
-    transition: transform 0.2s, background 0.2s;
+    justify-content: center;
+    font-size: 32px;
+    transition: transform 0.3s ease;
 }
 
-.chat-toggle-btn:hover, .chat-notify-btn:hover {
-    background: var(--accent-blue);
-    transform: translateY(-2px);
+.main-choice-card:hover .choice-icon {
+    transform: scale(1.1);
 }
 
-.badge {
-    background: #ef4444;
-    color: white;
-    font-size: 11px;
-    padding: 2px 7px;
-    border-radius: 10px;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
-    animation: pulseBadge 1.5s infinite;
+.chat-choice .choice-icon {
+    background: linear-gradient(135deg, #e6f0fa 0%, #cce0f5 100%);
+    color: #0066cc;
 }
 
-@keyframes pulseBadge {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1); }
+.queue-choice .choice-icon {
+    background: linear-gradient(135deg, #e8f7ed 0%, #c8ebd1 100%);
+    color: #2e7d32;
 }
 
+/* النصوص داخل البطاقات */
+.main-choice-card h3 {
+    margin: 0 0 8px 0;
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
 
+.main-choice-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
 
+/* ==========================================
+   2. الزر العائم (Floating Button - قريب ومريح)
+   ========================================== */
+.chat-toggle-btn {
+    position: fixed;
+    bottom: 25px;
+    left: 20px; /* موقع قريب من الحافة ومناسب جداً لليد عند استخدام الهاتف */
+    z-index: 999;
+    padding: 12px 22px;
+    background: linear-gradient(135deg, #0066cc 0%, #004999 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 8px 20px rgba(0, 102, 204, 0.35);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 
+.chat-toggle-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 25px rgba(0, 102, 204, 0.45);
+}
 
+.chat-toggle-btn:active {
+    transform: translateY(0) scale(0.98);
+}
 
+/* ==========================================
+   3. التوافق المتقدم مع الهواتف الذكية (Responsive Design)
+   ========================================== */
+@media (max-width: 600px) {
+    .choice-cards-container {
+        grid-template-columns: 1fr; /* جعل البطاقات تحت بعضها في الشاشات الصغيرة */
+        gap: 15px;
+        margin: 15px 0;
+    }
+
+    .main-choice-card {
+        padding: 22px 16px;
+        border-radius: 16px;
+    }
+
+    .main-choice-card .choice-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+        margin-bottom: 12px;
+        border-radius: 16px;
+    }
+
+    .main-choice-card h3 {
+        font-size: 1.1rem;
+    }
+
+    .main-choice-card p {
+        font-size: 0.85rem;
+    }
+
+    /* الزر العائم للهاتف */
+    .chat-toggle-btn {
+        bottom: 20px;
+        left: 15px;
+        padding: 10px 18px;
+        font-size: 0.88rem;
+        box-shadow: 0 6px 16px rgba(0, 102, 204, 0.3);
+    }
+}
         /* Footer */
         .bottom-footer {
         background: var(--primary-blue, #1b365d);
@@ -814,12 +900,97 @@
         100% { transform: scale(1); }
     }
 
+    /* =========================================================
+   تنسيقات التجاوب للهواتف والشاشات الصغيرة (Responsive Design)
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+    /* ضبط الحاوية الرئيسية لتأخذ كامل الشاشة الديناميكية */
+    .chat-tab-overlay {
+        padding: 0;
+        height: 100dvh; /* dvh يتكيف فوراً مع ظهور الكيبورد */
+    }
+
+    .engineer-chat-wrapper {
+        width: 100%;
+        height: 100dvh;
+        border-radius: 0;
+        border: none;
+        flex-direction: column;
+        position: relative;
+    }
+
+    /* الشريط الجانبي (قائمة الطلاب) يملأ الشاشة كاملاً في الهاتف */
+    .chat-sidebar {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        background: #ffffff;
+        transition: transform 0.3s ease;
+    }
+
+    /* منطقة الشات الرئيسية تغطي الشاشة */
+    .chat-main-area {
+        width: 100%;
+        height: 100dvh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 5;
+    }
+
+    /* إخفاء القائمة الجانبية عند اختيار طالب لإتاحة الشات */
+    .engineer-chat-wrapper.student-selected .chat-sidebar {
+        transform: translateX(100%); /* إزاحة القائمة جانباً */
+    }
+
+    /* ضبط الهيدر ليكون متجاوب مع زر العودة */
+    .chat-header {
+        padding: 10px 14px;
+        min-height: 55px;
+        box-sizing: border-box;
+    }
+
+    .chat-header h3 {
+        font-size: 14px;
+    }
+
+    /* ضبط منطقة الرسائل لتتمرير مرن */
+    .chat-body {
+        padding: 12px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .chat-bubble {
+        max-width: 85%; /* توسيع فقاعة الرسالة على الشاشات الصغيرة */
+    }
+
+    /* تثبيت الفوتر الخاص بالإدخال فوق الكيبورد تماماً */
+    .chat-footer {
+        padding: 8px 10px;
+        background: #ffffff;
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+    }
+
+    .chat-footer input[type="text"] {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+}
+
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="main-wrapper">
+    <!-- Top Banner -->
     <div class="top-banner">
         <button class="logout-link" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
         <div class="logo-area">
@@ -832,23 +1003,46 @@
     </div>
 
     <div class="content">
+        <!-- College Header -->
         <div class="college-header">
             <div class="college-title">
                 <i class="fa-solid fa-capsules"></i>
                 <span id="student-college-name">جاري التحميل...</span>
             </div>
             <p class="welcome-text" id="student-welcome-title">مرحباً بك، طالب</p>
-            <p class="sub-welcome">نحن هنا لخدمتك</p>
+            <p class="sub-welcome">اختر الخدمة أو الوسيلة التي تود التفاعل من خلالها</p>
         </div>
 
+        <!-- 1. شاشة الاختيار الأولية (البطاقتان) -->
+<div id="initial-choice-cards" class="choice-cards-container">
+    
+    <!-- بطاقة الشات المباشر: تستدعي openStudentChat() مباشرةً دون المرور بـ selectMode -->
+    <div class="main-choice-card chat-choice" onclick="openStudentChat()">
+        <div class="choice-icon">
+            <i class="fa-solid fa-comments"></i>
+        </div>
+        <h3>المحادثات المباشرة</h3>
+        <p>تواصل فورياً مع المهندس المختص والدعم الفني</p>
+        <span id="student-choice-unread-badge" class="badge hidden">0</span>
+    </div>
 
-        <!-- زر فتح الشات في الصفحة الرئيسيّة -->
-<button class="chat-toggle-btn" onclick="openStudentChat()">
+    <!-- بطاقة حجز دور: تستدعي selectMode('queue') فقط -->
+    <div class="main-choice-card queue-choice" onclick="selectMode('queue')">
+        <div class="choice-icon">
+            <i class="fa-solid fa-ticket-simple"></i>
+        </div>
+        <h3>حجز دور بالمرور</h3>
+        <p>احجز تذكرتك واستعرض موقف الانتظار</p>
+    </div>
+</div>
+
+<!-- زر الشات العائم: يستدعي openStudentChat() مباشرةً -->
+<button id="floating-chat-btn" class="chat-toggle-btn hidden" onclick="openStudentChat()">
     <i class="fa-solid fa-comments"></i> المحادثة مع المهندس
     <span id="student-unread-badge" class="badge hidden">0</span>
 </button>
 
-<!-- شاشة الشات المباشر كـ Tab كامل -->
+        <!-- نافذة الشات المباشر -->
 <div id="student-chat-tab" class="chat-tab-overlay hidden">
     <div class="chat-card">
         <div class="chat-header">
@@ -858,7 +1052,12 @@
             </div>
             <button class="close-btn" onclick="closeStudentChat()">✕</button>
         </div>
-        <div class="chat-body" id="chat-messages-container"></div>
+        
+        <!-- التعديل هنا: إضافة chat-main-area حول chat-body -->
+        <div class="chat-main-area">
+            <div class="chat-body" id="chat-messages-container"></div>
+        </div>
+
         <div class="chat-footer">
             <input type="file" id="chat-image-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
             <button class="icon-btn" onclick="document.getElementById('chat-image-input').click()" title="إرفاق صورة">
@@ -872,102 +1071,110 @@
     </div>
 </div>
 
-        <div id="no-ticket-view">
-            <div class="section-divider">
-                <span>اختر الخدمة التي تحتاجها</span>
+        <!-- 2. محتوى حجز الدور والخدمات (يظل مخفياً في البداية حتى الضغط على "حجز دور") -->
+        <div id="queue-main-content" class="hidden">
+            
+            <!-- عرض اختيار الخدمات (عند عدم وجود تذكرة) -->
+            <div id="no-ticket-view">
+                <div class="section-divider">
+                    <span>اختر الخدمة التي تحتاجها لحجز دورك</span>
+                </div>
+
+                <div class="services-grid">
+                    <div class="service-card" onclick="submitTicket('تسجيل مقررات')">
+                        <i class="fa-regular fa-file-lines"></i>
+                        <span>تسجيل مقررات</span>
+                    </div>
+                    <div class="service-card" onclick="submitTicket('مشكلة في التسجيل')">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>مشكلة في التسجيل</span>
+                    </div>
+                    <div class="service-card" onclick="submitTicket('حذف / إضافة مقرر')">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                        <span>حذف / إضافة مقرر</span>
+                    </div>
+                    <div class="service-card" onclick="submitTicket('استفسار أكاديمي')">
+                        <i class="fa-regular fa-comments"></i>
+                        <span>استفسار أكاديمي</span>
+                    </div>
+                    <div class="service-card" onclick="submitTicket('مشكلة في الـ SIS')">
+                        <i class="fa-solid fa-laptop-code"></i>
+                        <span>مشكلة في الـ SIS</span>
+                    </div>
+                    <div class="service-card" onclick="submitTicket('مشكلة في الساعات')">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>مشكلة في الساعات</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="services-grid">
-                <div class="service-card" onclick="submitTicket('تسجيل مقررات')">
-                    <i class="fa-regular fa-file-lines"></i>
-                    <span>تسجيل مقررات</span>
-                </div>
-                <div class="service-card" onclick="submitTicket('مشكلة في التسجيل')">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>مشكلة في التسجيل</span>
-                </div>
-                <div class="service-card" onclick="submitTicket('حذف / إضافة مقرر')">
-                    <i class="fa-solid fa-file-circle-plus"></i>
-                    <span>حذف / إضافة مقرر</span>
-                </div>
-                <div class="service-card" onclick="submitTicket('استفسار أكاديمي')">
-                    <i class="fa-regular fa-comments"></i>
-                    <span>استفسار أكاديمي</span>
-                </div>
-                <div class="service-card" onclick="submitTicket('مشكلة في الـ SIS')">
-                    <i class="fa-solid fa-laptop-code"></i>
-                    <span>مشكلة في الـ SIS</span>
-                </div>
-                <div class="service-card" onclick="submitTicket('مشكلة في الساعات')">
-                    <i class="fa-regular fa-clock"></i>
-                    <span>مشكلة في الساعات</span>
-                </div>
-            </div>
-        </div>
-
-        <div id="has-ticket-view" class="hidden">
-            <div class="section-divider">
-                <span>رقم دورك</span>
-            </div>
-
-            <div class="ticket-card">
-                <div class="ticket-number-display" id="my-ticket-number">P-000</div>
-                
-                <div>
-                    <span id="my-ticket-status" class="status-pill status-pending">
-                        <i class="fa-regular fa-clock"></i> <span id="status-text">الحالة: في الانتظار</span>
-                    </span>
+            <!-- عرض التذكرة والحالة (في حال وجود تذكرة بالفعل) -->
+            <div id="has-ticket-view" class="hidden">
+                <div class="section-divider">
+                    <span>رقم دورك</span>
                 </div>
 
-                <div class="stats-box">
-                    <div class="stat-item">
-                        <i class="fa-solid fa-user-gear"></i>
-                        <div class="stat-info">
-                            <span class="stat-label">يتم الآن خدمة</span>
-                            <span class="stat-value" id="current-serving-ticket">---</span>
+                <div class="ticket-card">
+                    <div class="ticket-number-display" id="my-ticket-number">P-000</div>
+                    
+                    <div>
+                        <span id="my-ticket-status" class="status-pill status-pending">
+                            <i class="fa-regular fa-clock"></i> <span id="status-text">الحالة: في الانتظار</span>
+                        </span>
+                    </div>
+
+                    <div class="stats-box">
+                        <div class="stat-item">
+                            <i class="fa-solid fa-user-gear"></i>
+                            <div class="stat-info">
+                                <span class="stat-label">يتم الآن خدمة</span>
+                                <span class="stat-value" id="current-serving-ticket">---</span>
+                            </div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <i class="fa-solid fa-users"></i>
+                            <div class="stat-info">
+                                <span class="stat-label">المتبقي أمامك</span>
+                                <span class="stat-value" id="students-ahead-count">0 طالب</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="stat-divider"></div>
-                    <div class="stat-item">
-                        <i class="fa-solid fa-users"></i>
-                        <div class="stat-info">
-                            <span class="stat-label">المتبقي أمامك</span>
-                            <span class="stat-value" id="students-ahead-count">0 طالب</span>
+
+                    <div class="office-box">
+                        <div class="office-row">
+                            <span class="office-label"><i class="fa-solid fa-user-tie"></i> المهندس المسؤول:</span>
+                            <span class="office-val" id="emp-name-tag">جاري التحديد...</span>
+                        </div>
+                        <div class="office-row">
+                            <span class="office-label"><i class="fa-solid fa-building-columns"></i> المكتب / المقر:</span>
+                            <span class="office-val" id="emp-office-name">المكتب الرئيسي</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="office-box">
-                    <div class="office-row">
-                        <span class="office-label"><i class="fa-solid fa-user-tie"></i> المهندس المسؤول:</span>
-                        <span class="office-val" id="emp-name-tag">جاري التحديد...</span>
-                    </div>
-                    <div class="office-row">
-                        <span class="office-label"><i class="fa-solid fa-building-columns"></i> المكتب / المقر:</span>
-                        <span class="office-val" id="emp-office-name">المكتب الرئيسي</span>
-                    </div>
-                </div>
             </div>
-        </div>
 
-        <div class="notes-card">
-            <div class="notes-icon-side">
-                <i class="fa-solid fa-chair"></i>
-            </div>
-            <div class="notes-content">
-                <div class="notes-title">
-                    ملاحظات هامة
-                    <i class="fa-solid fa-circle-info" style="color: #0066cc;"></i>
+            <!-- ملاحظات هامة -->
+            <div class="notes-card">
+                <div class="notes-icon-side">
+                    <i class="fa-solid fa-chair"></i>
                 </div>
-                <ul class="notes-list">
-                    <li>برجاء الانتظار حتى يتم استدعاء رقمك.</li>
-                    <li>سيتم إرسال إشعار عند قرب دورك.</li>
-                    <li>شكراً لتعاونك ونتمنى لك التوفيق.</li>
-                </ul>
+                <div class="notes-content">
+                    <div class="notes-title">
+                        ملاحظات هامة
+                        <i class="fa-solid fa-circle-info" style="color: #0066cc;"></i>
+                    </div>
+                    <ul class="notes-list">
+                        <li>برجاء الانتظار حتى يتم استدعاء رقمك.</li>
+                        <li>سيتم إرسال إشعار عند قرب دورك.</li>
+                        <li>شكراً لتعاونك ونتمنى لك التوفيق.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- نافذة استدعاء الدور (Modal) -->
     <div id="serving-modal" class="modal-overlay hidden">
         <div class="modal-card">
             <div class="modal-icon-wrapper">
@@ -985,28 +1192,30 @@
         </div>
     </div>
 
+    <!-- Bottom Footer -->
     <div class="bottom-footer">
-    <div class="footer-credits">
-        <span>Developed with</span>
-        <i class="fa-solid fa-heart heart-icon"></i>
-        <span>by <strong>Eng. Mohamed Elsayed</strong></span>
-    </div>
+        <div class="footer-credits">
+            <span>Developed with</span>
+            <i class="fa-solid fa-heart heart-icon"></i>
+            <span>by <strong>Eng. Mohamed Elsayed</strong></span>
+        </div>
 
-    <div class="social-links">
-        <a href="https://wa.me/01004335462" target="_blank" class="social-icon whatsapp" title="WhatsApp">
-            <i class="fa-brands fa-whatsapp"></i>
-        </a>
-        
-        <a href="https://www.facebook.com/share/18NjzVPKGe/" target="_blank" class="social-icon facebook" title="Facebook">
-            <i class="fa-brands fa-facebook-f"></i>
-        </a>
+        <div class="social-links">
+            <a href="https://wa.me/01004335462" target="_blank" class="social-icon whatsapp" title="WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            
+            <a href="https://www.facebook.com/share/18NjzVPKGe/" target="_blank" class="social-icon facebook" title="Facebook">
+                <i class="fa-brands fa-facebook-f"></i>
+            </a>
 
-        <a href="https://www.instagram.com/mohamed_alsayid995?igsi=MW85ZnI1ZzdocTJiMg==" target="_blank" class="social-icon instagram" title="Instagram">
-            <i class="fa-brands fa-instagram"></i>
-        </a>
+            <a href="https://www.instagram.com/mohamed_alsayid995?igsi=MW85ZnI1ZzdocTJiMg==" target="_blank" class="social-icon instagram" title="Instagram">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+        </div>
     </div>
 </div>
-</div>
+</body>
 
 <script src="db.js"></script>
 <script>
@@ -1141,7 +1350,6 @@
         }
     }
 
-let chatInterval = null;
 let studentChatInterval = null;
 let lastStudentMsgCount = 0;
 
@@ -1154,41 +1362,57 @@ async function checkStudentUnreadMessages() {
         const msgs = await supabaseRequest(`messages?student_id=eq.${currentUser.id}&order=created_at.desc&select=id,sender_id`);
         if (!msgs) return;
         
-        // حساب الرسائل الواردة من المهندس
         const incoming = msgs.filter(m => m.sender_id !== currentUser.id);
         const badge = document.getElementById("student-unread-badge");
         
         const isChatOpen = !document.getElementById("student-chat-tab").classList.contains("hidden");
         if (!isChatOpen && incoming.length > lastStudentMsgCount) {
-            badge.textContent = incoming.length - lastStudentMsgCount;
-            badge.classList.remove("hidden");
+            if (badge) {
+                badge.textContent = incoming.length - lastStudentMsgCount;
+                badge.classList.remove("hidden");
+            }
         }
     } catch(e) { console.error(e); }
 }
 
-function openStudentChat() {
-    document.getElementById("student-chat-tab").classList.remove("hidden");
+async function openStudentChat() {
+    const chatTab = document.getElementById("student-chat-tab");
+    chatTab.classList.remove("hidden");
+
     const badge = document.getElementById("student-unread-badge");
     if (badge) badge.classList.add("hidden");
     
     const infoHeader = document.getElementById("chat-student-info");
-    if (infoHeader && currentUser) infoHeader.textContent = currentUser.full_name;
+    if (infoHeader && currentUser) infoHeader.textContent = currentUser.full_name || currentUser.username;
     
-    loadStudentMessages(false); // تحميل أولي
-    
+    // 1. تنظيف أي مؤقت سابق
     if (studentChatInterval) clearInterval(studentChatInterval);
-    // تحديث حي بدون وميض كل 2.5 ثانية
+
+    // 2. إظهار المؤشرات وتفريغ النافذة فوراً
+    const container = document.getElementById("chat-messages-container");
+    if (container) {
+        container.innerHTML = `<div style="text-align:center; padding: 20px; color: #64748b;"><i class="fa-solid fa-spinner fa-spin"></i> جاري تحميل الرسائل...</div>`;
+    }
+
+    // 3. تحميل مباشر للرسائل
+    await renderStudentMessages();
+    
+    // 4. تشغيل المزامنة الدورية بعد الفتح
     studentChatInterval = setInterval(() => {
-        loadStudentMessages(true);
+        renderStudentMessages(true);
     }, 2500);
 }
 
 function closeStudentChat() {
     document.getElementById("student-chat-tab").classList.add("hidden");
-    if (studentChatInterval) clearInterval(studentChatInterval);
+    if (studentChatInterval) {
+        clearInterval(studentChatInterval);
+        studentChatInterval = null;
+    }
 }
 
-async function loadStudentMessages(isSilent = false) {
+// دالة العرض الموحدة والمضمونة للرسائل
+async function renderStudentMessages(isBackgroundRefresh = false) {
     if (!currentUser) return;
 
     try {
@@ -1196,67 +1420,58 @@ async function loadStudentMessages(isSilent = false) {
         const container = document.getElementById("chat-messages-container");
         if (!container || !messages) return;
 
+        // في حال التحديث الدوري الخلفي وعدم وجود رسائل جديدة، لا نُعدل على الـ DOM
+        const currentMsgCount = container.querySelectorAll('.chat-bubble').length;
+        if (isBackgroundRefresh && messages.length === currentMsgCount) {
+            return; 
+        }
+
         const incomingMsgs = messages.filter(m => m.sender_id !== currentUser.id);
         lastStudentMsgCount = incomingMsgs.length;
 
-        // منع الوميض: قراءة الرسائل الموجودة حالياً بالفئة data-msg-id
-        const existingMsgIds = new Set(Array.from(container.querySelectorAll('[data-msg-id]')).map(el => el.getAttribute('data-msg-id')));
-
-        if (!isSilent) {
-            container.innerHTML = "";
-            existingMsgIds.clear();
+        // جلب أسماء المرسالين
+        const senderIds = [...new Set(messages.map(m => m.sender_id))];
+        let sendersMap = {};
+        if (senderIds.length > 0) {
+            const senders = await supabaseRequest(`users?id=in.(${senderIds.join(',')})&select=id,full_name,username`);
+            (senders || []).forEach(u => sendersMap[u.id] = u);
         }
 
-        const newMessages = messages.filter(m => !existingMsgIds.has(String(m.id)));
-
-        // إذا لم تكن هناك رسائل جديدة وكان التحديث هادئاً، لا نلمس الشاشة لتجنب الوميض
-        if (isSilent && newMessages.length === 0) return;
-
-        // جلب أسماء المهندسين المشاركين بالرد
-        const senderIds = [...new Set(messages.map(m => m.sender_id))];
-        const senders = await supabaseRequest(`users?id=in.(${senderIds.join(',')})&select=id,full_name,username`);
-        const sendersMap = {};
-        (senders || []).forEach(u => sendersMap[u.id] = u);
-
-        let addedCount = 0;
+        // إبناء عناصر الـ HTML للرسائل دفعة واحدة
+        let htmlContent = '';
         messages.forEach(msg => {
-            if (isSilent && existingMsgIds.has(String(msg.id))) return;
-
             const isMe = msg.sender_id === currentUser.id;
             const senderUser = sendersMap[msg.sender_id];
             const engName = senderUser ? (senderUser.full_name || senderUser.username) : "المهندس المختص";
+            const timeStr = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            const msgDiv = document.createElement("div");
-            msgDiv.setAttribute('data-msg-id', msg.id);
-            msgDiv.className = `chat-bubble ${isMe ? 'outgoing' : 'incoming'}`;
-            
-            let timeStr = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            let content = '';
-            
-            if (msg.message) content += `<p style="margin:0">${msg.message}</p>`;
-            if (msg.image_url) content += `<img src="${msg.image_url}" class="chat-img" onclick="window.open(this.src)" />`;
-            
-            // إذا كان المرسل هو المهندس، يتم إرفاق اسمه بخط صغير بجوار الوقت
+            let bodyContent = '';
+            if (msg.message) bodyContent += `<p style="margin:0">${msg.message}</p>`;
+            if (msg.image_url) bodyContent += `<img src="${msg.image_url}" class="chat-img" onclick="window.open(this.src)" />`;
+
             if (!isMe) {
-                content += `
+                bodyContent += `
                     <div class="chat-meta" style="font-size: 10px; opacity: 0.8; margin-top: 4px; display: flex; justify-content: space-between; gap: 8px;">
                         <span class="chat-engineer-name" style="font-weight: 600;">👨‍🏫 ${engName}</span>
                         <span class="chat-time">${timeStr}</span>
                     </div>
                 `;
             } else {
-                content += `<span class="chat-time">${timeStr}</span>`;
+                bodyContent += `<span class="chat-time">${timeStr}</span>`;
             }
-            
-            msgDiv.innerHTML = content;
-            container.appendChild(msgDiv);
-            addedCount++;
+
+            htmlContent += `<div class="chat-bubble ${isMe ? 'outgoing' : 'incoming'}" data-msg-id="${msg.id}">${bodyContent}</div>`;
         });
 
-        if (addedCount > 0 || !isSilent) {
-            container.scrollTop = container.scrollHeight;
-        }
-    } catch(e) { console.error("خطأ تحصيل الرسائل:", e); }
+        // طباعة الرسائل دفعة واحدة لضمان الظهور الفوري وعدم الوميض
+        container.innerHTML = htmlContent || `<div style="text-align:center; padding:20px; color:#94a3b8;">لا توجد رسائل بعد. ابدأ المحادثة الان!</div>`;
+
+        // التمرير لأسفل الشاشة دائماً بعد التحميل
+        container.scrollTop = container.scrollHeight;
+
+    } catch(e) {
+        console.error("خطأ تحصيل الرسائل:", e);
+    }
 }
 
 async function sendChatMessage() {
@@ -1272,62 +1487,86 @@ async function sendChatMessage() {
             message: text
         });
         textInput.value = "";
-        loadStudentMessages(true);
+        await renderStudentMessages(false);
     } catch(e) { alert("فشل الإرسال: " + e.message); }
 }
 
-// دالة رفع الصور المباشرة المدمجة لتجنب خطأ uploadImageToSupabase is not defined
 async function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // إظهار مؤشر التحميل وتغيير نص الزر أو خيارات الواجهة
     const fileInput = e.target;
     fileInput.disabled = true;
     
-    // إنشاء تنبيه بسيط بالرفع في أسفل محادثة الطالب
     const container = document.getElementById("chat-messages-container");
     const loadingDiv = document.createElement("div");
     loadingDiv.id = "temp-image-loading";
     loadingDiv.style.cssText = "text-align: center; color: #64748b; font-size: 13px; padding: 8px; margin: 4px 0;";
-    loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-left: 6px;"></i> جاري رفع الصورة، يرجى الانتظار...`;
+    loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-left: 6px;"></i> جاري رفع الصورة...`;
     container.appendChild(loadingDiv);
     container.scrollTop = container.scrollHeight;
 
     try {
-        const reader = new FileReader();
-        reader.onload = async function (event) {
-            const base64Image = event.target.result;
-            
-            try {
-                await supabaseRequest("messages", "POST", {
-                    sender_id: currentUser.id,
-                    student_id: currentUser.id,
-                    college_id: currentUser.college_id,
-                    image_url: base64Image
-                });
-                
-                // إزالة مؤشر التحميل وإعادة تفعيل المدخل
-                const tempLoading = document.getElementById("temp-image-loading");
-                if (tempLoading) tempLoading.remove();
-                fileInput.disabled = false;
-                fileInput.value = ""; // تفريغ حقل الاختيار لتمكين رفع نفس الصورة مجدداً إن أراد
+        const apiKey = typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : (typeof SUPABASE_KEY !== 'undefined' ? SUPABASE_KEY : null);
+        const baseUrl = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : (typeof supabaseUrl !== 'undefined' ? supabaseUrl : null);
 
-                loadStudentMessages(true);
-            } catch (err) {
-                const tempLoading = document.getElementById("temp-image-loading");
-                if (tempLoading) tempLoading.remove();
-                fileInput.disabled = false;
-                alert("خطأ في رفع الصورة: " + err.message);
-            }
-        };
-        reader.readAsDataURL(file);
+        if (!apiKey || !baseUrl) throw new Error("لم يتم العثور على مفتاح Supabase.");
+
+        const studentFolder = currentUser.student_code || currentUser.code || currentUser.id;
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+        const filePath = `${studentFolder}/${fileName}`;
+
+        const uploadResponse = await fetch(`${baseUrl}/storage/v1/object/photo/${filePath}`, {
+            method: 'POST',
+            headers: {
+                'apikey': apiKey,
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': file.type
+            },
+            body: file
+        });
+
+        if (!uploadResponse.ok) {
+            const errData = await uploadResponse.json();
+            throw new Error(errData.message || "فشل رفع الملف إلى الخادم");
+        }
+
+        const publicImageUrl = `${baseUrl}/storage/v1/object/public/photo/${filePath}`;
+
+        await supabaseRequest("messages", "POST", {
+            sender_id: currentUser.id,
+            student_id: currentUser.id,
+            college_id: currentUser.college_id,
+            image_url: publicImageUrl
+        });
+
+        const tempLoading = document.getElementById("temp-image-loading");
+        if (tempLoading) tempLoading.remove();
+        fileInput.disabled = false;
+        fileInput.value = ""; 
+
+        await renderStudentMessages(false);
 
     } catch (err) { 
         const tempLoading = document.getElementById("temp-image-loading");
         if (tempLoading) tempLoading.remove();
         fileInput.disabled = false;
-        alert("خطأ في قراءة الصورة: " + err.message); 
+        alert("خطأ في رفع الصورة: " + err.message); 
+    }
+}
+
+
+// دالة النمط خاصة فقط بنظام الدور والانتظار
+function selectMode(mode) {
+    if (mode === 'queue') {
+        const choiceCards = document.getElementById('initial-choice-cards');
+        const queueContent = document.getElementById('queue-main-content');
+        const floatingBtn = document.getElementById('floating-chat-btn');
+
+        if (choiceCards) choiceCards.classList.add('hidden');
+        if (floatingBtn) floatingBtn.classList.remove('hidden');
+        if (queueContent) queueContent.classList.remove('hidden');
     }
 }
 
