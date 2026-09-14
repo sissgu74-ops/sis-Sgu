@@ -1596,6 +1596,15 @@ async function handleImageUpload(e) {
 // دالة النمط خاصة فقط بنظام الدور والانتظار
 function selectMode(mode) {
     if (mode === 'queue') {
+        // التحقق من الوقت الحالي (من 9:00 صباحاً حتى 3:30 مساءً)
+        const now = new Date();
+        const currentHour = now.getHours() + (now.getMinutes() / 60);
+
+        if (currentHour < 9 || currentHour >= 15.5) {
+            alert('عذراً، خدمة حجز الدور متاحة فقط من الساعة 9:00 صباحاً حتى 3:30 مساءً.');
+            return; // إيقاف تنفيذ باقي الدالة
+        }
+
         const choiceCards = document.getElementById('initial-choice-cards');
         const queueContent = document.getElementById('queue-main-content');
         const floatingBtn = document.getElementById('floating-chat-btn');
